@@ -4,6 +4,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
+import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
 import android.database.sqlite.SQLiteConstraintException;
@@ -12,6 +13,8 @@ import android.support.annotation.NonNull;
 import com.example.geotracker.data.persistence.room.entities.Journey;
 
 import java.util.List;
+
+import io.reactivex.Flowable;
 
 @Dao
 public abstract class JourneyDAO {
@@ -43,4 +46,7 @@ public abstract class JourneyDAO {
             updateJourney(journey);
         }
     }
+
+    @Query("SELECT * FROM journeys")
+    public abstract Flowable<List<Journey>> getAllJourneysFlowable();
 }

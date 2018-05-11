@@ -28,12 +28,12 @@ public class Location {
     private double longitude;
 
     @ColumnInfo(name = DbConstants.Location.COL_TIMESTAMP)
-    private String timestamp;
+    private long timestamp;
 
     @ColumnInfo(name = DbConstants.Location.COL_JOURNEY_ID)
     private String journeyId;
 
-    public Location(long id, double latitude, double longitude, String timestamp, String journeyId) {
+    public Location(long id, double latitude, double longitude, long timestamp, String journeyId) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -65,11 +65,11 @@ public class Location {
         this.longitude = longitude;
     }
 
-    public String getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -91,8 +91,7 @@ public class Location {
         if (getId() != location.getId()) return false;
         if (Double.compare(location.getLatitude(), getLatitude()) != 0) return false;
         if (Double.compare(location.getLongitude(), getLongitude()) != 0) return false;
-        if (getTimestamp() != null ? !getTimestamp().equals(location.getTimestamp()) : location.getTimestamp() != null)
-            return false;
+        if (getTimestamp() != location.getTimestamp()) return false;
         return getJourneyId() != null ? getJourneyId().equals(location.getJourneyId()) : location.getJourneyId() == null;
     }
 
@@ -105,9 +104,8 @@ public class Location {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(getLongitude());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (getTimestamp() != null ? getTimestamp().hashCode() : 0);
+        result = 31 * result + (int) (getTimestamp() ^ (getTimestamp() >>> 32));
         result = 31 * result + (getJourneyId() != null ? getJourneyId().hashCode() : 0);
         return result;
     }
-
 }
