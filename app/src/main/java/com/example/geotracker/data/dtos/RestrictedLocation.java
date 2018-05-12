@@ -3,10 +3,10 @@ package com.example.geotracker.data.dtos;
 public class RestrictedLocation {
     public static final long GENERATE_NEW_IDENTIFIER = 0L;
 
-    private long identifier;
-    private double latitude;
-    private double longitude;
-    private String recordedAtIso;
+    private final long identifier;
+    private final double latitude;
+    private final double longitude;
+    private final String recordedAtIso;
 
     public RestrictedLocation(long identifier, double latitude, double longitude, String recordedAtIso) {
         this.identifier = identifier;
@@ -19,32 +19,16 @@ public class RestrictedLocation {
         return identifier;
     }
 
-    public void setIdentifier(long identifier) {
-        this.identifier = identifier;
-    }
-
     public double getLatitude() {
         return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
     }
 
     public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
     public String getRecordedAtIso() {
         return recordedAtIso;
-    }
-
-    public void setRecordedAtIso(String recordedAtIso) {
-        this.recordedAtIso = recordedAtIso;
     }
 
     @Override
