@@ -1,7 +1,5 @@
 package com.example.geotracker.rules;
 
-import com.example.geotracker.data.repositories.RepositoryImplTest;
-
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;

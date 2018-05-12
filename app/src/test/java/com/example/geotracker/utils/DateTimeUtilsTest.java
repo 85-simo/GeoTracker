@@ -2,10 +2,7 @@ package com.example.geotracker.utils;
 
 import junit.framework.Assert;
 
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
-
-import java.util.TimeZone;
 
 public class DateTimeUtilsTest {
     private static final long TEST_TIMESTAMP = 1526148000000L; // Corresponds to 2018-05-12T18:00:00.000Z

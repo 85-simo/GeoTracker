@@ -16,8 +16,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Completable;
-import io.reactivex.CompletableEmitter;
-import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
