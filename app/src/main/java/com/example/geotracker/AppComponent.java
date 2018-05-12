@@ -2,7 +2,7 @@ package com.example.geotracker;
 
 import android.app.Application;
 
-import com.example.geotracker.data.persistence.room.database.DatabaseModule;
+import com.example.geotracker.data.DataModule;
 
 import javax.inject.Singleton;
 
@@ -11,7 +11,7 @@ import dagger.Component;
 import dagger.android.AndroidInjectionModule;
 
 @Singleton
-@Component(modules = {AndroidInjectionModule.class, AppModule.class, DatabaseModule.class})
+@Component(modules = {AndroidInjectionModule.class, AppModule.class, DataModule.class})
 public interface AppComponent {
     @Component.Builder
     interface Builder {

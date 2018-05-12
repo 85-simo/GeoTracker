@@ -1,15 +1,15 @@
 package com.example.geotracker.data.repositories;
 
-import android.support.annotation.NonNull;
-
-import com.example.geotracker.data.persistence.room.entities.Journey;
-import com.example.geotracker.data.persistence.room.entities.Location;
+import com.example.geotracker.data.dtos.RestrictedJourney;
+import com.example.geotracker.data.dtos.RestrictedLocation;
 
 import java.util.List;
 
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 public interface Repository {
-    Flowable<List<Journey>> getRefreshingJourneys();
-    Flowable<List<Location>> getRefreshingLocationsForJourney(long journeyId);
+    Single<List<RestrictedJourney>> getJourneysOneShot();
+    Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId);
+    void addLocationToJourney(RestrictedLocation location, long journeyIdentifier) throws Exception;
 }

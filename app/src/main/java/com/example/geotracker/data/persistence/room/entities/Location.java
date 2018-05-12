@@ -17,6 +17,8 @@ import com.example.geotracker.data.persistence.DbConstants;
                 onDelete = ForeignKey.CASCADE,
                 onUpdate = ForeignKey.CASCADE))
 public class Location {
+    public static final long GENERATE_NEW_IDENTIFIER = 0L;
+
     @ColumnInfo(name = DbConstants.Location.COL_ID)
     @PrimaryKey(autoGenerate = true)
     private long id;
@@ -31,9 +33,9 @@ public class Location {
     private long timestamp;
 
     @ColumnInfo(name = DbConstants.Location.COL_JOURNEY_ID)
-    private String journeyId;
+    private long journeyId;
 
-    public Location(long id, double latitude, double longitude, long timestamp, String journeyId) {
+    public Location(long id, double latitude, double longitude, long timestamp, long journeyId) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -73,11 +75,11 @@ public class Location {
         this.timestamp = timestamp;
     }
 
-    public String getJourneyId() {
+    public long getJourneyId() {
         return journeyId;
     }
 
-    public void setJourneyId(String journeyId) {
+    public void setJourneyId(long journeyId) {
         this.journeyId = journeyId;
     }
 
@@ -92,7 +94,7 @@ public class Location {
         if (Double.compare(location.getLatitude(), getLatitude()) != 0) return false;
         if (Double.compare(location.getLongitude(), getLongitude()) != 0) return false;
         if (getTimestamp() != location.getTimestamp()) return false;
-        return getJourneyId() != null ? getJourneyId().equals(location.getJourneyId()) : location.getJourneyId() == null;
+        return getJourneyId() == location.getJourneyId();
     }
 
     @Override
@@ -105,7 +107,7 @@ public class Location {
         temp = Double.doubleToLongBits(getLongitude());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (int) (getTimestamp() ^ (getTimestamp() >>> 32));
-        result = 31 * result + (getJourneyId() != null ? getJourneyId().hashCode() : 0);
+        result = 31 * result + (int) (getJourneyId() ^ (getJourneyId() >>> 32));
         return result;
     }
 }
