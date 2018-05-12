@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "80ea30a8f3238da308862668c44e418a",
+    "identityHash": "708b0c5b6495073d5249d820054da36f",
     "entities": [
       {
         "tableName": "journeys",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `is_complete` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `is_complete` INTEGER NOT NULL, `started_at` INTEGER NOT NULL, `completed_at` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -17,6 +17,18 @@
           {
             "fieldPath": "complete",
             "columnName": "is_complete",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAtTimestamp",
+            "columnName": "started_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAtTimestamp",
+            "columnName": "completed_at",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -98,7 +110,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"80ea30a8f3238da308862668c44e418a\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"708b0c5b6495073d5249d820054da36f\")"
     ]
   }
 }

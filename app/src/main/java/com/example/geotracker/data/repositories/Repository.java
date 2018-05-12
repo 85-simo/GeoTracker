@@ -5,11 +5,12 @@ import com.example.geotracker.data.dtos.RestrictedLocation;
 
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 
 public interface Repository {
     Single<List<RestrictedJourney>> getJourneysOneShot();
     Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId);
-    void addLocationToJourney(RestrictedLocation location, long journeyIdentifier) throws Exception;
+    Completable addLocationToJourney(RestrictedLocation location, long journeyIdentifier) throws Exception;
 }

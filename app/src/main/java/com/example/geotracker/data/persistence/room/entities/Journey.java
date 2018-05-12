@@ -17,6 +17,12 @@ public class Journey {
     @ColumnInfo(name = DbConstants.Journey.COL_COMPLETE)
     private boolean complete;
 
+    @ColumnInfo(name = DbConstants.Journey.COL_STARTED_AT)
+    private long startedAtTimestamp;
+
+    @ColumnInfo(name = DbConstants.Journey.COL_COMPLETED_AT)
+    private long completedAtTimestamp;
+
     public Journey(long id, boolean complete) {
         this.id = id;
         this.complete = complete;
@@ -38,6 +44,22 @@ public class Journey {
         this.complete = complete;
     }
 
+    public long getStartedAtTimestamp() {
+        return startedAtTimestamp;
+    }
+
+    public void setStartedAtTimestamp(long startedAtTimestamp) {
+        this.startedAtTimestamp = startedAtTimestamp;
+    }
+
+    public long getCompletedAtTimestamp() {
+        return completedAtTimestamp;
+    }
+
+    public void setCompletedAtTimestamp(long completedAtTimestamp) {
+        this.completedAtTimestamp = completedAtTimestamp;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,14 +68,17 @@ public class Journey {
         Journey journey = (Journey) o;
 
         if (getId() != journey.getId()) return false;
-        return isComplete() == journey.isComplete();
+        if (isComplete() != journey.isComplete()) return false;
+        if (getStartedAtTimestamp() != journey.getStartedAtTimestamp()) return false;
+        return getCompletedAtTimestamp() == journey.getCompletedAtTimestamp();
     }
 
     @Override
     public int hashCode() {
         int result = (int) (getId() ^ (getId() >>> 32));
         result = 31 * result + (isComplete() ? 1 : 0);
+        result = 31 * result + (int) (getStartedAtTimestamp() ^ (getStartedAtTimestamp() >>> 32));
+        result = 31 * result + (int) (getCompletedAtTimestamp() ^ (getCompletedAtTimestamp() >>> 32));
         return result;
     }
-
 }

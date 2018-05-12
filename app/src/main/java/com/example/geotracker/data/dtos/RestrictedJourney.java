@@ -3,28 +3,32 @@ package com.example.geotracker.data.dtos;
 public class RestrictedJourney {
     public static final long GENERATE_NEW_IDENTIFIER = 0L;
 
-    private long identifier;
-    private boolean complete;
+    private final long identifier;
+    private final boolean complete;
+    private final String startedAtUTCDateTimeIso;
+    private final String completedAtUTCDateTimeIso;
 
-    public RestrictedJourney(long identifier, boolean complete) {
+    public RestrictedJourney(long identifier, boolean complete, String startedAtUTCDateTimeIso, String completedAtUTCDateTimeIso) {
         this.identifier = identifier;
         this.complete = complete;
+        this.startedAtUTCDateTimeIso = startedAtUTCDateTimeIso;
+        this.completedAtUTCDateTimeIso = completedAtUTCDateTimeIso;
     }
 
     public long getIdentifier() {
         return identifier;
     }
 
-    public void setIdentifier(long identifier) {
-        this.identifier = identifier;
-    }
-
     public boolean isComplete() {
         return complete;
     }
 
-    public void setComplete(boolean complete) {
-        this.complete = complete;
+    public String getStartedAtUTCDateTimeIso() {
+        return startedAtUTCDateTimeIso;
+    }
+
+    public String getCompletedAtUTCDateTimeIso() {
+        return completedAtUTCDateTimeIso;
     }
 
     @Override
@@ -35,13 +39,18 @@ public class RestrictedJourney {
         RestrictedJourney that = (RestrictedJourney) o;
 
         if (getIdentifier() != that.getIdentifier()) return false;
-        return isComplete() == that.isComplete();
+        if (isComplete() != that.isComplete()) return false;
+        if (getStartedAtUTCDateTimeIso() != null ? !getStartedAtUTCDateTimeIso().equals(that.getStartedAtUTCDateTimeIso()) : that.getStartedAtUTCDateTimeIso() != null)
+            return false;
+        return getCompletedAtUTCDateTimeIso() != null ? getCompletedAtUTCDateTimeIso().equals(that.getCompletedAtUTCDateTimeIso()) : that.getCompletedAtUTCDateTimeIso() == null;
     }
 
     @Override
     public int hashCode() {
         int result = (int) (getIdentifier() ^ (getIdentifier() >>> 32));
         result = 31 * result + (isComplete() ? 1 : 0);
+        result = 31 * result + (getStartedAtUTCDateTimeIso() != null ? getStartedAtUTCDateTimeIso().hashCode() : 0);
+        result = 31 * result + (getCompletedAtUTCDateTimeIso() != null ? getCompletedAtUTCDateTimeIso().hashCode() : 0);
         return result;
     }
 }

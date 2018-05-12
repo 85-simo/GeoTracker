@@ -8,16 +8,21 @@ import com.example.geotracker.data.persistence.room.database.JourneyDAO;
 import com.example.geotracker.data.persistence.room.database.LocationDAO;
 import com.example.geotracker.data.persistence.room.entities.Journey;
 import com.example.geotracker.data.persistence.room.entities.Location;
+import com.example.geotracker.utils.DateTimeUtils;
 
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 @Singleton
 class RepositoryImpl implements Repository {
@@ -26,8 +31,6 @@ class RepositoryImpl implements Repository {
     @NonNull
     private LocationDAO locationDAO;
     @NonNull
-    private Function<RestrictedLocation, Location> restrictedLocationToEntityMapper;
-    @NonNull
     private Function<Location, RestrictedLocation> entityToRestrictedLocationMapper;
     @NonNull
     private Function<Journey, RestrictedJourney> entityToRestrictedJourneyMapper;
@@ -35,12 +38,10 @@ class RepositoryImpl implements Repository {
     @Inject
     RepositoryImpl(@NonNull JourneyDAO journeyDAO,
                    @NonNull LocationDAO locationDAO,
-                   @NonNull Function<RestrictedLocation, Location> restrictedLocationToEntityMapper,
                    @NonNull Function<Location, RestrictedLocation> entityToRestrictedLocationMapper,
                    @NonNull Function<Journey, RestrictedJourney> entityToRestrictedJourneyMapper) {
         this.journeyDAO = journeyDAO;
         this.locationDAO = locationDAO;
-        this.restrictedLocationToEntityMapper = restrictedLocationToEntityMapper;
         this.entityToRestrictedLocationMapper = entityToRestrictedLocationMapper;
         this.entityToRestrictedJourneyMapper = entityToRestrictedJourneyMapper;
     }
@@ -50,6 +51,8 @@ class RepositoryImpl implements Repository {
     public Single<List<RestrictedJourney>> getJourneysOneShot() {
         return this.journeyDAO
                 .getAllJourneysSingle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .flatMapObservable(Observable::fromIterable)
                 .map(this.entityToRestrictedJourneyMapper)
                 .toList();
@@ -59,6 +62,8 @@ class RepositoryImpl implements Repository {
     public Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId) {
         return this.locationDAO
                 .getSortedLocationsByJourneyIdFlowable(journeyId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
                 .flatMap(Flowable::fromIterable)
                 .map(this.entityToRestrictedLocationMapper)
                 .toList()
@@ -66,10 +71,19 @@ class RepositoryImpl implements Repository {
     }
 
     @Override
-    public void addLocationToJourney(RestrictedLocation location, long journeyId) throws Exception {
-        Location mappedLocation = this.restrictedLocationToEntityMapper
-                .apply(location);
-        mappedLocation.setJourneyId(journeyId);
-        this.locationDAO.upsertLocation(mappedLocation);
+    public Completable addLocationToJourney(RestrictedLocation restrictedLocation, long journeyId) {
+        return Completable.create(emitter -> {
+            try {
+                long recordAtMillis = DateTimeUtils.isoUTCDateTimeStringToMillis(restrictedLocation.getRecordedAtIso());
+                Location location = new Location(restrictedLocation.getIdentifier(), restrictedLocation.getLatitude(), restrictedLocation.getLongitude(), recordAtMillis, journeyId);
+                RepositoryImpl.this.locationDAO.upsertLocation(location);
+                emitter.onComplete();
+            }
+            catch (Exception e) {
+                emitter.onError(e);
+            }
+        })
+       .subscribeOn(Schedulers.io())
+       .observeOn(Schedulers.computation());
     }
 }
