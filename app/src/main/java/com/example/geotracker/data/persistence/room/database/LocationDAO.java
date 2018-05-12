@@ -47,6 +47,6 @@ public abstract class LocationDAO {
         }
     }
 
-    @Query("SELECT * FROM locations WHERE journey_id = :journeyId")
-    public abstract Flowable<List<Location>> getSortedLocationsByJourneyIdFlowable(String journeyId);
+    @Query("SELECT * FROM locations WHERE journey_id = :journeyId ORDER BY locations.timestamp DESC")
+    public abstract Flowable<List<Location>> getSortedLocationsByJourneyIdFlowable(long journeyId);
 }

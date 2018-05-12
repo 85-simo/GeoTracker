@@ -8,6 +8,8 @@ import com.example.geotracker.data.persistence.DbConstants;
 
 @Entity(tableName = DbConstants.Journey.TABLE_NAME)
 public class Journey {
+    public static final long GENERATE_NEW_IDENTIFIER = 0L;
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DbConstants.Journey.COL_ID)
     private long id;

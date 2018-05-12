@@ -14,7 +14,7 @@ import com.example.geotracker.data.persistence.room.entities.Journey;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 @Dao
 public abstract class JourneyDAO {
@@ -48,5 +48,5 @@ public abstract class JourneyDAO {
     }
 
     @Query("SELECT * FROM journeys")
-    public abstract Flowable<List<Journey>> getAllJourneysFlowable();
+    public abstract Single<List<Journey>> getAllJourneysSingle();
 }
