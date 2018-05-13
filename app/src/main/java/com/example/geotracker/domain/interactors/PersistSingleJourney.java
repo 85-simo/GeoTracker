@@ -22,7 +22,8 @@ public class PersistSingleJourney implements PersistInteractor<Void, VisibleJour
         RestrictedJourney restrictedJourney = new RestrictedJourney(visibleJourney.getIdentifier(),
                 visibleJourney.isComplete(),
                 visibleJourney.getStartedAtUTCDateTimeIso(),
-                visibleJourney.getCompletedAtUTCDateTimeIso());
+                visibleJourney.getCompletedAtUTCDateTimeIso(),
+                visibleJourney.getTitle());
         return this.repository
                 .insertOrUpdateJourney(restrictedJourney);
     }

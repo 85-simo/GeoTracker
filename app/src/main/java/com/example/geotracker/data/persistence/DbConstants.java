@@ -7,6 +7,7 @@ public class DbConstants {
         public static final String COL_COMPLETE = "is_complete";
         public static final String COL_STARTED_AT = "started_at";
         public static final String COL_COMPLETED_AT = "completed_at";
+        public static final String COL_TITLE = "title";
     }
 
     public final class Location {
