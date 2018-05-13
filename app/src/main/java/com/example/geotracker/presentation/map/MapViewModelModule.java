@@ -10,7 +10,7 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
 
-@Module
+@Module(includes = {ViewModelModule.class})
 public abstract class MapViewModelModule {
 
     @Binds
