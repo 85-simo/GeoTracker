@@ -14,6 +14,7 @@ import com.example.geotracker.data.persistence.room.entities.Journey;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
 import io.reactivex.Single;
 
 @Dao
@@ -49,4 +50,7 @@ public abstract class JourneyDAO {
 
     @Query("SELECT * FROM journeys")
     public abstract Single<List<Journey>> getAllJourneysSingle();
+
+    @Query("SELECT * FROM journeys ORDER BY started_at DESC")
+    public abstract Flowable<List<Journey>> getRefreshingSortedJourneys();
 }
