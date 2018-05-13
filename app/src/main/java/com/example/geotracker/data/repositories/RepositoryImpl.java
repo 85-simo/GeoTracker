@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.example.geotracker.data.dtos.RestrictedJourney;
 import com.example.geotracker.data.dtos.RestrictedLocation;
+import com.example.geotracker.data.persistence.prefs.SharedPreferencesProvider;
 import com.example.geotracker.data.persistence.room.database.JourneyDAO;
 import com.example.geotracker.data.persistence.room.database.LocationDAO;
 import com.example.geotracker.data.persistence.room.entities.Journey;
@@ -32,16 +33,20 @@ class RepositoryImpl implements Repository {
     private Function<Location, RestrictedLocation> entityToRestrictedLocationMapper;
     @NonNull
     private Function<Journey, RestrictedJourney> entityToRestrictedJourneyMapper;
+    @NonNull
+    private SharedPreferencesProvider sharedPreferencesProvider;
 
     @Inject
     RepositoryImpl(@NonNull JourneyDAO journeyDAO,
                    @NonNull LocationDAO locationDAO,
+                   @NonNull SharedPreferencesProvider sharedPreferencesProvider,
                    @NonNull Function<Location, RestrictedLocation> entityToRestrictedLocationMapper,
                    @NonNull Function<Journey, RestrictedJourney> entityToRestrictedJourneyMapper) {
         this.journeyDAO = journeyDAO;
         this.locationDAO = locationDAO;
         this.entityToRestrictedLocationMapper = entityToRestrictedLocationMapper;
         this.entityToRestrictedJourneyMapper = entityToRestrictedJourneyMapper;
+        this.sharedPreferencesProvider = sharedPreferencesProvider;
     }
 
 
@@ -66,6 +71,12 @@ class RepositoryImpl implements Repository {
                 .map(this.entityToRestrictedLocationMapper)
                 .toList()
                 .toFlowable();
+    }
+
+    @Override
+    public Flowable<Boolean> getRefreshingTrackingState() {
+        return this.sharedPreferencesProvider
+                .getRefreshingBooleanPrefValue(SharedPreferencesProvider.PREF_KEY_TRACKING_ACTIVE);
     }
 
     @Override
