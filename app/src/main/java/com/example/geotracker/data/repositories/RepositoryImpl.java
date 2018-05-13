@@ -62,6 +62,18 @@ class RepositoryImpl implements Repository {
     }
 
     @Override
+    public Flowable<List<RestrictedJourney>> getRefreshingJourneys() {
+        return this.journeyDAO
+                .getRefreshingSortedJourneys()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .flatMap(Flowable::fromIterable)
+                .map(this.entityToRestrictedJourneyMapper)
+                .toList()
+                .toFlowable();
+    }
+
+    @Override
     public Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId) {
         return this.locationDAO
                 .getSortedLocationsByJourneyIdFlowable(journeyId)
