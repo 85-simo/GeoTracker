@@ -8,8 +8,8 @@ import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 
 @PerActivity
-@Subcomponent(modules = {ActivityModule.class, MapViewModelModule.class, ViewModelModule.class})
-public interface MapActivitySubcomponent extends AndroidInjector<MapActivity> {
+@Subcomponent(modules = {MapViewModelModule.class, MapFragmentModule.class})
+public interface MainActivitySubcomponent extends AndroidInjector<MainActivity> {
     @Subcomponent.Builder
-    abstract class Builder extends AndroidInjector.Builder<MapActivity> {}
+    abstract class Builder extends AndroidInjector.Builder<MainActivity> {}
 }
