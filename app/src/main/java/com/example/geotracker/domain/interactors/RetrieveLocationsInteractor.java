@@ -12,13 +12,13 @@ import java.util.List;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 
-public class RetrieveLocations implements RetrieveInteractor<Long, List<VisibleLocation>> {
+public class RetrieveLocationsInteractor implements RetrieveInteractor<Long, List<VisibleLocation>> {
     @NonNull
     private Repository repository;
     @NonNull
     private Function<RestrictedLocation, VisibleLocation> locationMapper;
 
-    RetrieveLocations(@NonNull Repository repository, @NonNull Function<RestrictedLocation, VisibleLocation> locationMapper) {
+    RetrieveLocationsInteractor(@NonNull Repository repository, @NonNull Function<RestrictedLocation, VisibleLocation> locationMapper) {
         this.repository = repository;
         this.locationMapper = locationMapper;
     }

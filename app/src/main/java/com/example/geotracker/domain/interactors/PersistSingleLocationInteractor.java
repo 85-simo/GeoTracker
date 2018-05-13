@@ -9,11 +9,11 @@ import com.example.geotracker.domain.dtos.VisibleLocation;
 
 import io.reactivex.Completable;
 
-class PersistSingleLocation implements PersistInteractor<Long, VisibleLocation> {
+class PersistSingleLocationInteractor implements PersistInteractor<Long, VisibleLocation> {
     @NonNull
     private Repository repository;
 
-    PersistSingleLocation(@NonNull Repository repository) {
+    PersistSingleLocationInteractor(@NonNull Repository repository) {
         this.repository = repository;
     }
 

@@ -7,11 +7,11 @@ import com.example.geotracker.domain.base.RetrieveInteractor;
 
 import io.reactivex.Flowable;
 
-class RetrieveTrackingState implements RetrieveInteractor<Void, Boolean> {
+class RetrieveTrackingStateInteractor implements RetrieveInteractor<Void, Boolean> {
     @NonNull
     private Repository repository;
 
-    RetrieveTrackingState(@NonNull Repository repository) {
+    RetrieveTrackingStateInteractor(@NonNull Repository repository) {
         this.repository = repository;
     }
 

@@ -13,13 +13,13 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
-class GetJourneys implements GetInteractor<Void, List<VisibleJourney>> {
+class GetJourneysInteractor implements GetInteractor<Void, List<VisibleJourney>> {
     @NonNull
     private Repository repository;
     @NonNull
     private Function<RestrictedJourney, VisibleJourney> journeyMapper;
 
-    GetJourneys(@NonNull Repository repository, @NonNull Function<RestrictedJourney, VisibleJourney> journeyMapper) {
+    GetJourneysInteractor(@NonNull Repository repository, @NonNull Function<RestrictedJourney, VisibleJourney> journeyMapper) {
         this.repository = repository;
         this.journeyMapper = journeyMapper;
     }
