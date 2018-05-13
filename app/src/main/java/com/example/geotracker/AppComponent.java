@@ -3,6 +3,7 @@ package com.example.geotracker;
 import android.app.Application;
 
 import com.example.geotracker.data.DataModule;
+import com.example.geotracker.domain.DomainModule;
 
 import javax.inject.Singleton;
 
@@ -11,7 +12,7 @@ import dagger.Component;
 import dagger.android.AndroidInjectionModule;
 
 @Singleton
-@Component(modules = {AndroidInjectionModule.class, AppModule.class, DataModule.class})
+@Component(modules = {AndroidInjectionModule.class, AppModule.class, DataModule.class, DomainModule.class})
 public interface AppComponent {
     @Component.Builder
     interface Builder {

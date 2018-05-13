@@ -23,9 +23,11 @@ public class Journey {
     @ColumnInfo(name = DbConstants.Journey.COL_COMPLETED_AT)
     private long completedAtTimestamp;
 
-    public Journey(long id, boolean complete) {
+    public Journey(long id, boolean complete, long startedAtTimestamp, long completedAtTimestamp) {
         this.id = id;
         this.complete = complete;
+        this.startedAtTimestamp = startedAtTimestamp;
+        this.completedAtTimestamp = completedAtTimestamp;
     }
 
     public long getId() {
