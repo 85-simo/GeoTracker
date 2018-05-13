@@ -1,19 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.geotracker">
+
     <application
+        android:name=".GeoTrackerApplication"
         android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:fullBackupOnly="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:fullBackupOnly="false"
-        android:fullBackupContent="false"
-        android:name=".GeoTrackerApplication"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/maps_api_key" />
 
-    <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="@string/maps_api_key" />
-
+        <activity android:name=".presentation.map.MapActivity"></activity>
     </application>
+
 </manifest>
