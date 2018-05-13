@@ -9,5 +9,11 @@
         android:fullBackupOnly="false"
         android:fullBackupContent="false"
         android:name=".GeoTrackerApplication"
-        android:theme="@style/AppTheme" />
+        android:theme="@style/AppTheme">
+
+    <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="@string/maps_api_key" />
+
+    </application>
 </manifest>
