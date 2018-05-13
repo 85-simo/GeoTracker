@@ -10,7 +10,7 @@ import dagger.Module;
 import io.reactivex.functions.Function;
 
 @Module
-public abstract class MappersModule {
+public abstract class DataMappersModule {
 
     @Binds
     abstract Function<Location, RestrictedLocation> bindEntityToRestrictedLocationMapper(EntityToRestrictedLocationMapper mapper);

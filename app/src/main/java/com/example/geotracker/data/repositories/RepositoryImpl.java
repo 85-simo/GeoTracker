@@ -84,4 +84,25 @@ class RepositoryImpl implements Repository {
        .subscribeOn(Schedulers.io())
        .observeOn(Schedulers.computation());
     }
+
+    @Override
+    public Completable insertOrUpdateJourney(RestrictedJourney restrictedJourney) {
+        return Completable.create(emitter -> {
+            try {
+                long startedAtTimestamp = DateTimeUtils.isoUTCDateTimeStringToMillis(restrictedJourney.getStartedAtUTCDateTimeIso());
+                long completedAtTimestamp = DateTimeUtils.isoUTCDateTimeStringToMillis(restrictedJourney.getCompletedAtUTCDateTimeIso());
+                Journey journey = new Journey(restrictedJourney.getIdentifier(),
+                        restrictedJourney.isComplete(),
+                        startedAtTimestamp,
+                        completedAtTimestamp);
+                RepositoryImpl.this.journeyDAO.upsertJourney(journey);
+                emitter.onComplete();
+            }
+            catch (Exception e) {
+                emitter.onError(e);
+            }
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation());
+    }
 }
