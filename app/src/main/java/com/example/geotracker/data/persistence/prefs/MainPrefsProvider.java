@@ -15,12 +15,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 
 public class MainPrefsProvider implements SharedPreferencesProvider{
-    public static final String PREF_KEY_TRACKING_ACTIVE = "tracking";
-
-    @Documented
-    @StringDef({PREF_KEY_TRACKING_ACTIVE})
-    public @interface MainPrefKey {}
-
     private SharedPreferences sharedPreferences;
 
     @Inject
@@ -30,7 +24,7 @@ public class MainPrefsProvider implements SharedPreferencesProvider{
 
 
     @Override
-    public Maybe<String> getSingleStringPrefValue(@NonNull @MainPrefKey String prefKey) {
+    public Maybe<String> getSingleStringPrefValue(@NonNull String prefKey) {
         return Maybe.create(emitter -> {
             try {
                 String prefValue = MainPrefsProvider.this.sharedPreferences.getString(prefKey, null);
@@ -46,7 +40,7 @@ public class MainPrefsProvider implements SharedPreferencesProvider{
     }
 
     @Override
-    public Maybe<Boolean> getSingleBooleanPrefValue(@NonNull @MainPrefKey String prefKey) {
+    public Maybe<Boolean> getSingleBooleanPrefValue(@NonNull String prefKey) {
         return Maybe.create(emitter -> {
             try {
                 boolean prefValue = MainPrefsProvider.this.sharedPreferences.getBoolean(prefKey, false);
@@ -60,7 +54,7 @@ public class MainPrefsProvider implements SharedPreferencesProvider{
     }
 
     @Override
-    public Flowable<String> getRefreshingStringPrefValue(@NonNull @MainPrefKey String prefKey) {
+    public Flowable<String> getRefreshingStringPrefValue(@NonNull String prefKey) {
         return Flowable.create(emitter -> {
             try {
                 String initialPrefValue = MainPrefsProvider.this.sharedPreferences.getString(prefKey, null);
@@ -86,7 +80,7 @@ public class MainPrefsProvider implements SharedPreferencesProvider{
     }
 
     @Override
-    public Flowable<Boolean> getRefreshingBooleanPrefValue(@NonNull @MainPrefKey String prefKey) {
+    public Flowable<Boolean> getRefreshingBooleanPrefValue(@NonNull String prefKey) {
         return Flowable.create(emitter -> {
             try {
                 emitter.onNext(MainPrefsProvider.this.sharedPreferences.getBoolean(prefKey, false));
@@ -105,7 +99,7 @@ public class MainPrefsProvider implements SharedPreferencesProvider{
     }
 
     @Override
-    public Completable putStringPrefValue(@NonNull @MainPrefKey String prefKey, @Nullable String prefValue) {
+    public Completable putStringPrefValue(@NonNull String prefKey, @Nullable String prefValue) {
         return Completable.create(emitter -> {
             try {
                 SharedPreferences.Editor editor = MainPrefsProvider.this.sharedPreferences.edit();
@@ -120,7 +114,7 @@ public class MainPrefsProvider implements SharedPreferencesProvider{
     }
 
     @Override
-    public Completable putBooleanPrefValue(@NonNull @MainPrefKey String prefKey, boolean prefValue) {
+    public Completable putBooleanPrefValue(@NonNull String prefKey, boolean prefValue) {
         return Completable.create(emitter -> {
             try {
                 SharedPreferences.Editor editor = MainPrefsProvider.this.sharedPreferences.edit();

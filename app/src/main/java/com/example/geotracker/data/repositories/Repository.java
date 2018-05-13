@@ -12,6 +12,7 @@ import io.reactivex.Single;
 public interface Repository {
     Single<List<RestrictedJourney>> getJourneysOneShot();
     Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId);
+    Flowable<Boolean> getRefreshingTrackingState();
     Completable addLocationToJourney(RestrictedLocation location, long journeyIdentifier);
     Completable insertOrUpdateJourney(RestrictedJourney journey);
 }

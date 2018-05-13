@@ -24,4 +24,7 @@ public abstract class InteractorsModule {
 
     @Binds
     abstract RetrieveInteractor<Long, List<VisibleLocation>> bindAllLocationsForGivenJourneyRetrieveInteractor(RetrieveLocations retrieveLocations);
+
+    @Binds
+    abstract RetrieveInteractor<Void, Boolean> bindTrackingStateRetrieveInteractor(RetrieveTrackingState retrieveTrackingState);
 }
