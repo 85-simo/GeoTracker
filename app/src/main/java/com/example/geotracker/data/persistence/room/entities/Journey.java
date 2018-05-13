@@ -17,6 +17,9 @@ public class Journey {
     @ColumnInfo(name = DbConstants.Journey.COL_COMPLETE)
     private boolean complete;
 
+    @ColumnInfo(name = DbConstants.Journey.COL_TITLE)
+    private String title;
+
     @ColumnInfo(name = DbConstants.Journey.COL_STARTED_AT)
     private long startedAtTimestamp;
 
@@ -62,6 +65,14 @@ public class Journey {
         this.completedAtTimestamp = completedAtTimestamp;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -72,13 +83,15 @@ public class Journey {
         if (getId() != journey.getId()) return false;
         if (isComplete() != journey.isComplete()) return false;
         if (getStartedAtTimestamp() != journey.getStartedAtTimestamp()) return false;
-        return getCompletedAtTimestamp() == journey.getCompletedAtTimestamp();
+        if (getCompletedAtTimestamp() != journey.getCompletedAtTimestamp()) return false;
+        return getTitle() != null ? getTitle().equals(journey.getTitle()) : journey.getTitle() == null;
     }
 
     @Override
     public int hashCode() {
         int result = (int) (getId() ^ (getId() >>> 32));
         result = 31 * result + (isComplete() ? 1 : 0);
+        result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
         result = 31 * result + (int) (getStartedAtTimestamp() ^ (getStartedAtTimestamp() >>> 32));
         result = 31 * result + (int) (getCompletedAtTimestamp() ^ (getCompletedAtTimestamp() >>> 32));
         return result;

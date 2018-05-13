@@ -7,12 +7,14 @@ public class VisibleJourney {
     private final boolean complete;
     private final String startedAtUTCDateTimeIso;
     private final String completedAtUTCDateTimeIso;
+    private final String title;
 
-    public VisibleJourney(long identifier, boolean complete, String startedAtUTCDateTimeIso, String completedAtUTCDateTimeIso) {
+    public VisibleJourney(long identifier, boolean complete, String startedAtUTCDateTimeIso, String completedAtUTCDateTimeIso, String title) {
         this.identifier = identifier;
         this.complete = complete;
         this.startedAtUTCDateTimeIso = startedAtUTCDateTimeIso;
         this.completedAtUTCDateTimeIso = completedAtUTCDateTimeIso;
+        this.title = title;
     }
 
     public long getIdentifier() {
@@ -31,6 +33,10 @@ public class VisibleJourney {
         return completedAtUTCDateTimeIso;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -42,7 +48,9 @@ public class VisibleJourney {
         if (isComplete() != that.isComplete()) return false;
         if (getStartedAtUTCDateTimeIso() != null ? !getStartedAtUTCDateTimeIso().equals(that.getStartedAtUTCDateTimeIso()) : that.getStartedAtUTCDateTimeIso() != null)
             return false;
-        return getCompletedAtUTCDateTimeIso() != null ? getCompletedAtUTCDateTimeIso().equals(that.getCompletedAtUTCDateTimeIso()) : that.getCompletedAtUTCDateTimeIso() == null;
+        if (getCompletedAtUTCDateTimeIso() != null ? !getCompletedAtUTCDateTimeIso().equals(that.getCompletedAtUTCDateTimeIso()) : that.getCompletedAtUTCDateTimeIso() != null)
+            return false;
+        return getTitle() != null ? getTitle().equals(that.getTitle()) : that.getTitle() == null;
     }
 
     @Override
@@ -51,6 +59,7 @@ public class VisibleJourney {
         result = 31 * result + (isComplete() ? 1 : 0);
         result = 31 * result + (getStartedAtUTCDateTimeIso() != null ? getStartedAtUTCDateTimeIso().hashCode() : 0);
         result = 31 * result + (getCompletedAtUTCDateTimeIso() != null ? getCompletedAtUTCDateTimeIso().hashCode() : 0);
+        result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
         return result;
     }
 }

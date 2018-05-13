@@ -37,7 +37,7 @@ public class RepositoryImplTest {
 
     @Before
     public void setUp() {
-        this.repository = new RepositoryImpl(this.mockJourneyDAO, this.mockLocationDAO, this.entityToRestrictedLocationMapper, this.entityToRestrictedJourneyMapper);
+//        this.repository = new RepositoryImpl(this.mockJourneyDAO, this.mockLocationDAO, this.entityToRestrictedLocationMapper, this.entityToRestrictedJourneyMapper);
 
 
     }
