@@ -27,4 +27,7 @@ public abstract class InteractorsModule {
 
     @Binds
     abstract RetrieveInteractor<Void, Boolean> bindTrackingStateRetrieveInteractor(RetrieveTrackingState retrieveTrackingState);
+
+    @Binds
+    abstract RetrieveInteractor<Void, List<VisibleJourney>> bindAllJourneysRetrieveInteractor(RetrieveJourneysInteractor retrieveJourneysInteractor);
 }
