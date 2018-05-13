@@ -9,11 +9,11 @@ import com.example.geotracker.domain.dtos.VisibleJourney;
 
 import io.reactivex.Completable;
 
-public class PersistSingleJourney implements PersistInteractor<Void, VisibleJourney> {
+public class PersistSingleJourneyInteractor implements PersistInteractor<Void, VisibleJourney> {
     @NonNull
     private Repository repository;
 
-    PersistSingleJourney(@NonNull Repository repository) {
+    PersistSingleJourneyInteractor(@NonNull Repository repository) {
         this.repository = repository;
     }
 
