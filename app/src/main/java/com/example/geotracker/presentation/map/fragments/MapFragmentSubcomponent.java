@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.map;
+package com.example.geotracker.presentation.map.fragments;
 
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
