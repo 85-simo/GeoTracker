@@ -7,12 +7,15 @@ import com.example.geotracker.data.repositories.Repository;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
 
+import javax.inject.Inject;
+
 import io.reactivex.Completable;
 
 public class PersistSingleJourneyInteractor implements PersistInteractor<Void, VisibleJourney> {
     @NonNull
     private Repository repository;
 
+    @Inject
     PersistSingleJourneyInteractor(@NonNull Repository repository) {
         this.repository = repository;
     }
