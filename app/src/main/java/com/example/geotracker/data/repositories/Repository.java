@@ -16,4 +16,5 @@ public interface Repository {
     Flowable<Boolean> getRefreshingTrackingState();
     Completable addLocationToJourney(RestrictedLocation location, long journeyIdentifier);
     Completable insertOrUpdateJourney(RestrictedJourney journey);
+    Completable setTrackingState(boolean trackingState);
 }

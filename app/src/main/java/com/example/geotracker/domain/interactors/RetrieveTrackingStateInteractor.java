@@ -5,12 +5,15 @@ import android.support.annotation.NonNull;
 import com.example.geotracker.data.repositories.Repository;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 
+import javax.inject.Inject;
+
 import io.reactivex.Flowable;
 
 class RetrieveTrackingStateInteractor implements RetrieveInteractor<Void, Boolean> {
     @NonNull
     private Repository repository;
 
+    @Inject
     RetrieveTrackingStateInteractor(@NonNull Repository repository) {
         this.repository = repository;
     }

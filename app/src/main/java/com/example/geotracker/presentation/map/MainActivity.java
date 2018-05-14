@@ -3,9 +3,13 @@ package com.example.geotracker.presentation.map;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.content.res.AppCompatResources;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.example.geotracker.R;
@@ -17,6 +21,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends BaseFragmentActivity {
     @Inject
@@ -26,8 +31,11 @@ public class MainActivity extends BaseFragmentActivity {
     BottomNavigationView mainActivityBnv;
     @BindView(R.id.main_activity_content_fl)
     FrameLayout mainActivityContentFl;
+    @BindView(R.id.activity_main_tracking_fab)
+    FloatingActionButton activityMainTrackingFab;
 
     private MapViewModel viewModel;
+    private boolean trackingActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +45,8 @@ public class MainActivity extends BaseFragmentActivity {
         this.viewModel = ViewModelProviders.of(this, this.viewModelFactory).get(MapViewModel.class);
         this.viewModel.getObservablePermissionRequestStream()
                 .observe(this, new PermissionRequestObserver());
+        this.viewModel.getObservableTrackingStateStream()
+                .observe(this, new TrackingStateChangesObserver());
         MapFragment mapFragment = MapFragment.newInstance();
         getSupportFragmentManager()
                 .beginTransaction()
@@ -49,14 +59,40 @@ public class MainActivity extends BaseFragmentActivity {
         this.viewModel.onPermissionsGranted();
     }
 
+    @OnClick(R.id.activity_main_tracking_fab)
+    void onTrackingButtonClick(View view) {
+        if (trackingActive) {
+            this.viewModel.setTrackingState(false);
+        }
+        else {
+            this.viewModel.setTrackingState(true);
+        }
+    }
+
 
     private class PermissionRequestObserver implements Observer<PermissionsRequestEvent> {
-
-
         @Override
         public void onChanged(@Nullable PermissionsRequestEvent permissionsRequestEvent) {
             if (permissionsRequestEvent != null) {
                 MainActivity.super.requestPermissions(permissionsRequestEvent.getRequestRationaleStringResId(), permissionsRequestEvent.getRequestedPermissions());
+            }
+        }
+    }
+
+    private class TrackingStateChangesObserver implements Observer<Boolean> {
+
+        @Override
+        public void onChanged(@Nullable Boolean trackingState) {
+            if (trackingState != null) {
+                Drawable stateDrawable = null;
+                if (trackingState) {
+                    stateDrawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.ic_stop);
+                }
+                else {
+                    stateDrawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.ic_play_arrow);
+                }
+                MainActivity.this.trackingActive = trackingState;
+                MainActivity.this.activityMainTrackingFab.setImageDrawable(stateDrawable);
             }
         }
     }

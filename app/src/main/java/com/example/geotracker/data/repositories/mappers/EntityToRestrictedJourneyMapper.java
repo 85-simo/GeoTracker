@@ -4,9 +4,16 @@ import com.example.geotracker.data.dtos.RestrictedJourney;
 import com.example.geotracker.data.persistence.room.entities.Journey;
 import com.example.geotracker.utils.DateTimeUtils;
 
+import javax.inject.Inject;
+
 import io.reactivex.functions.Function;
 
 public class EntityToRestrictedJourneyMapper implements Function<Journey, RestrictedJourney> {
+
+    @Inject
+    EntityToRestrictedJourneyMapper() {
+
+    }
 
     @Override
     public RestrictedJourney apply(Journey journey) throws Exception {
