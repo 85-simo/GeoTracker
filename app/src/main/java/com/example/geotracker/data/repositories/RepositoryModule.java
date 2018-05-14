@@ -1,7 +1,5 @@
 package com.example.geotracker.data.repositories;
 
-import com.example.geotracker.data.repositories.Repository;
-
 import javax.inject.Singleton;
 
 import dagger.Binds;
