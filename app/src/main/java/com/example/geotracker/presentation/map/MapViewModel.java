@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
 import com.example.geotracker.R;
+import com.example.geotracker.domain.base.BooleanInversionInteractor;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.presentation.PerActivity;
@@ -21,19 +22,25 @@ import io.reactivex.schedulers.Schedulers;
 
 @PerActivity
 public class MapViewModel extends ViewModel {
+    @NonNull
     private MutableLiveData<PermissionsRequestEvent> permissionsRequestLiveEvent;
+    @NonNull
     private MutableLiveData<Void> permissionGrantLiveEvent;
+    @NonNull
     private MutableLiveData<Boolean> trackingStateStreamEvent;
+    @NonNull
     private RetrieveInteractor<Void, Boolean> retrieveTrackingStateInteractor;
-    private PersistInteractor<Void, Boolean> persistTrackingStateInteractor;
+    @NonNull
+    private BooleanInversionInteractor<Void> trackingStateInversionInteractor;
+    @NonNull
     private CompositeDisposable compositeDisposable;
 
     @Inject
     MapViewModel(@NonNull RetrieveInteractor<Void, Boolean> retrieveTrackingStateInteractor,
-                 @NonNull PersistInteractor<Void, Boolean> persistTrackingStateInteractor) {
+                 @NonNull PersistInteractor<Void, Boolean> persistTrackingStateInteractor,
+                 @NonNull BooleanInversionInteractor<Void> trackingStateInversionInteractor) {
         this.retrieveTrackingStateInteractor = retrieveTrackingStateInteractor;
-        this.persistTrackingStateInteractor = persistTrackingStateInteractor;
-
+        this.trackingStateInversionInteractor = trackingStateInversionInteractor;
         this.compositeDisposable = new CompositeDisposable();
         this.permissionsRequestLiveEvent = new SingleLiveEvent<>();
         this.permissionGrantLiveEvent = new SingleLiveEvent<>();
@@ -68,16 +75,10 @@ public class MapViewModel extends ViewModel {
         Schedulers.computation().scheduleDirect(() -> MapViewModel.this.permissionGrantLiveEvent.postValue(null));
     }
 
-    public void setTrackingState(boolean trackingActive) {
-        Schedulers.computation().scheduleDirect(new Runnable() {
-            @Override
-            public void run() {
-                MapViewModel.this.compositeDisposable.add(MapViewModel.this.persistTrackingStateInteractor
-                        .persist(null, trackingActive)
-                        .subscribe()
-                );
-            }
-        });
+    public void invertTrackingState() {
+        Schedulers.computation().scheduleDirect(() -> MapViewModel.this.trackingStateInversionInteractor
+                .invertBooleanValue(null)
+                .subscribe());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.geotracker.domain.interactors;
 
+import com.example.geotracker.domain.base.BooleanInversionInteractor;
 import com.example.geotracker.domain.base.GetInteractor;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.base.RetrieveInteractor;
@@ -23,6 +24,9 @@ public abstract class InteractorsModule {
     abstract GetInteractor<Void, List<VisibleJourney>> bindAllJourneysGetInteractor(GetJourneysInteractor getJourneysInteractor);
 
     @Binds
+    abstract GetInteractor<Void, Boolean> bindTrackingStateGetInteractor(GetTrackingStateInteractor getTrackingStateInteractor);
+
+    @Binds
     abstract RetrieveInteractor<Long, List<VisibleLocation>> bindAllLocationsForGivenJourneyRetrieveInteractor(RetrieveLocationsInteractor retrieveLocationsInteractor);
 
     @Binds
@@ -33,4 +37,7 @@ public abstract class InteractorsModule {
 
     @Binds
     abstract PersistInteractor<Void, Boolean> bindTrackingStatePersistInteractor(PersistTrackingStateInteractor persistTrackingStateInteractor);
+
+    @Binds
+    abstract BooleanInversionInteractor<Void> bindTrackingStateInversionInteractor(TrackingStateInversionInteractor trackingStateInversionInteractor);
 }

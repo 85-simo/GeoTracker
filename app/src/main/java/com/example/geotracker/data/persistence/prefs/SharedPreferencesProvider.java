@@ -9,6 +9,7 @@ import java.lang.annotation.Documented;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 public interface SharedPreferencesProvider {
     public static final String PREF_KEY_TRACKING_ACTIVE = "tracking";
@@ -18,7 +19,7 @@ public interface SharedPreferencesProvider {
     public @interface PrefKey {}
 
     Maybe<String> getSingleStringPrefValue(@NonNull @PrefKey String prefKey);
-    Maybe<Boolean> getSingleBooleanPrefValue(@NonNull @PrefKey String prefKey);
+    Single<Boolean> getSingleBooleanPrefValue(@NonNull @PrefKey String prefKey);
 
     Flowable<String> getRefreshingStringPrefValue(@NonNull @PrefKey String prefKey);
     Flowable<Boolean> getRefreshingBooleanPrefValue(@NonNull @PrefKey String prefKey);

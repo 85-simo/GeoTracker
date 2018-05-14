@@ -11,6 +11,7 @@ import io.reactivex.Single;
 
 public interface Repository {
     Single<List<RestrictedJourney>> getJourneysOneShot();
+    Single<Boolean> getSingleTrackingState();
     Flowable<List<RestrictedJourney>> getRefreshingJourneys();
     Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId);
     Flowable<Boolean> getRefreshingTrackingState();
