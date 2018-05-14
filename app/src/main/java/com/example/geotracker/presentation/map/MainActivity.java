@@ -35,7 +35,6 @@ public class MainActivity extends BaseFragmentActivity {
     FloatingActionButton activityMainTrackingFab;
 
     private MapViewModel viewModel;
-    private boolean trackingActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +60,7 @@ public class MainActivity extends BaseFragmentActivity {
 
     @OnClick(R.id.activity_main_tracking_fab)
     void onTrackingButtonClick(View view) {
-        if (trackingActive) {
-            this.viewModel.setTrackingState(false);
-        }
-        else {
-            this.viewModel.setTrackingState(true);
-        }
+        this.viewModel.invertTrackingState();
     }
 
 
@@ -91,7 +85,6 @@ public class MainActivity extends BaseFragmentActivity {
                 else {
                     stateDrawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.ic_play_arrow);
                 }
-                MainActivity.this.trackingActive = trackingState;
                 MainActivity.this.activityMainTrackingFab.setImageDrawable(stateDrawable);
             }
         }

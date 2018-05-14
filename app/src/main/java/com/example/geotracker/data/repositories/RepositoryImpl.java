@@ -62,6 +62,12 @@ class RepositoryImpl implements Repository {
     }
 
     @Override
+    public Single<Boolean> getSingleTrackingState() {
+        return this.sharedPreferencesProvider
+                .getSingleBooleanPrefValue(SharedPreferencesProvider.PREF_KEY_TRACKING_ACTIVE);
+    }
+
+    @Override
     public Flowable<List<RestrictedJourney>> getRefreshingJourneys() {
         return this.journeyDAO
                 .getRefreshingSortedJourneys()

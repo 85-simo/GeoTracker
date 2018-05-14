@@ -10,6 +10,7 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 
 public class MainPrefsProvider implements SharedPreferencesProvider{
     private SharedPreferences sharedPreferences;
@@ -37,12 +38,11 @@ public class MainPrefsProvider implements SharedPreferencesProvider{
     }
 
     @Override
-    public Maybe<Boolean> getSingleBooleanPrefValue(@NonNull String prefKey) {
-        return Maybe.create(emitter -> {
+    public Single<Boolean> getSingleBooleanPrefValue(@NonNull String prefKey) {
+        return Single.create(emitter -> {
             try {
                 boolean prefValue = MainPrefsProvider.this.sharedPreferences.getBoolean(prefKey, false);
                 emitter.onSuccess(prefValue);
-                emitter.onComplete();
             }
             catch (Exception e) {
                 emitter.onError(e);
