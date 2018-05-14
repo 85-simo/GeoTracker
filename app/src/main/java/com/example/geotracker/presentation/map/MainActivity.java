@@ -3,19 +3,21 @@ package com.example.geotracker.presentation.map;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.content.res.AppCompatResources;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.presentation.map.fragments.MapFragment;
+import com.example.geotracker.presentation.tracking.TrackingService;
 
 import javax.inject.Inject;
 
@@ -59,8 +61,8 @@ public class MainActivity extends BaseFragmentActivity {
     }
 
     @OnClick(R.id.activity_main_tracking_fab)
-    void onTrackingButtonClick(View view) {
-        this.viewModel.invertTrackingState();
+    void onTrackingButtonClick() {
+        this.viewModel.onTrackingButtonClicked();
     }
 
 
@@ -79,11 +81,19 @@ public class MainActivity extends BaseFragmentActivity {
         public void onChanged(@Nullable Boolean trackingState) {
             if (trackingState != null) {
                 Drawable stateDrawable = null;
+                Intent serviceIntent = new Intent(MainActivity.this, TrackingService.class);
                 if (trackingState) {
                     stateDrawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.ic_stop);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(serviceIntent);
+                    }
+                    else {
+                        startService(serviceIntent);
+                    }
                 }
                 else {
                     stateDrawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.ic_play_arrow);
+                    stopService(serviceIntent);
                 }
                 MainActivity.this.activityMainTrackingFab.setImageDrawable(stateDrawable);
             }

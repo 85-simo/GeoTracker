@@ -16,7 +16,6 @@ import com.example.geotracker.utils.SingleLiveEvent;
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -75,7 +74,7 @@ public class MapViewModel extends ViewModel {
         Schedulers.computation().scheduleDirect(() -> MapViewModel.this.permissionGrantLiveEvent.postValue(null));
     }
 
-    public void invertTrackingState() {
+    public void onTrackingButtonClicked() {
         Schedulers.computation().scheduleDirect(() -> MapViewModel.this.trackingStateInversionInteractor
                 .invertBooleanValue(null)
                 .subscribe());
