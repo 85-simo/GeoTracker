@@ -128,4 +128,10 @@ class RepositoryImpl implements Repository {
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.computation());
     }
+
+    @Override
+    public Completable setTrackingState(boolean trackingState) {
+        return this.sharedPreferencesProvider
+                .putBooleanPrefValue(SharedPreferencesProvider.PREF_KEY_TRACKING_ACTIVE, trackingState);
+    }
 }

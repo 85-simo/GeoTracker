@@ -1,31 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main_cl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.geotracker.presentation.map.MainActivity">
-    <android.support.design.widget.BottomNavigationView android:id="@+id/main_activity_bnv"
+    <android.support.constraint.ConstraintLayout android:id="@+id/activity_main_const"
         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.design.widget.BottomNavigationView android:id="@+id/main_activity_bnv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintWidth_default="spread"
+            android:background="@color/colorPrimary"
+            app:itemIconTint="@color/menu_item_selector"
+            app:itemTextColor="@color/menu_item_selector"
+            app:itemBackground="?attr/selectableItemBackground"
+            app:elevation="6dp"
+            app:menu="@menu/bottom_navigation_items">
+        </android.support.design.widget.BottomNavigationView>
+        <FrameLayout android:id="@+id/main_activity_content_fl"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/main_activity_bnv"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintWidth_default="spread"
+            app:layout_constraintHeight_default="spread"/>
+    </android.support.constraint.ConstraintLayout>
+    <android.support.design.widget.FloatingActionButton android:id="@+id/activity_main_tracking_fab"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintWidth_default="spread"
-        android:background="@color/colorPrimary"
-        app:itemIconTint="@color/menu_item_selector"
-        app:itemTextColor="@color/menu_item_selector"
-        app:itemBackground="?attr/selectableItemBackground"
         app:elevation="6dp"
-        app:menu="@menu/bottom_navigation_items">
-    </android.support.design.widget.BottomNavigationView>
-    <FrameLayout android:id="@+id/main_activity_content_fl"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/main_activity_bnv"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintWidth_default="spread"
-        app:layout_constraintHeight_default="spread"/>
-</android.support.constraint.ConstraintLayout>
+        app:fabSize="normal"
+        app:layout_anchor="@id/activity_main_const"
+        app:layout_anchorGravity="bottom|right"
+        android:layout_marginBottom="70dp"
+        app:srcCompat="@drawable/ic_play_arrow"
+        android:tint="@color/colorPrimary"
+        app:rippleColor="@android:color/white"
+        app:useCompatPadding="true"/>
+</android.support.design.widget.CoordinatorLayout>
