@@ -7,38 +7,38 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.example.geotracker.R;
 import com.example.geotracker.domain.base.PersistInteractor;
-import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.presentation.base.BaseService;
 import com.example.geotracker.presentation.map.MainActivity;
+import com.example.geotracker.utils.DateTimeUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import io.reactivex.schedulers.Schedulers;
 
 public class TrackingService extends BaseService {
     private static final String TRACKING_NOTIFICATION_CHANNEL_ID = TrackingService.class.getCanonicalName() + ".TRACKING_NOTIFICATION_CHANNEL_ID";
     private static final int TRACKING_NOTIFICATION_ID = 31141;
 
     @Inject
-    PersistInteractor<Void, Boolean> trackingStatePersistInteractor;
-    @Inject
-    PersistInteractor<Void, VisibleJourney> singleJourneyPersistInteractor;
-    @Inject
-    PersistInteractor<Long, VisibleLocation> singleLocationPersistInteractor;
+    PersistInteractor<Void, List<VisibleLocation>> visibleLocationsPersistInteractor;
 
     private boolean serviceRunning = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -77,13 +77,13 @@ public class TrackingService extends BaseService {
                 }
             }
             startForeground(TRACKING_NOTIFICATION_ID, notification);
-            this.
+
             startLocationUpdates();
         }
         else {
             Log.e("Service", "Start command ignored");
         }
-        return START_NOT_STICKY;
+        return START_STICKY;
 
     }
 
@@ -116,9 +116,23 @@ public class TrackingService extends BaseService {
     private class LocationUpdateCallback extends LocationCallback {
         @Override
         public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) {
-                return;
-            }
+            Schedulers.computation().scheduleDirect(() -> {
+                if (locationResult != null) {
+                    List<Location> locations = locationResult.getLocations();
+                    List<VisibleLocation> visibleLocations = new ArrayList<>(locations.size());
+                    for (Location location : locations) {
+                        String recordedAtIso = DateTimeUtils.utcMillisToDateTimeIsoString(System.currentTimeMillis());
+                        VisibleLocation visibleLocation = new VisibleLocation(VisibleLocation.GENERATE_NEW_IDENTIFIER,
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                recordedAtIso);
+                        visibleLocations.add(visibleLocation);
+                    }
+                    TrackingService.this.visibleLocationsPersistInteractor
+                            .persist(null, visibleLocations)
+                            .subscribe();
+                }
+            });
         }
     }
 }

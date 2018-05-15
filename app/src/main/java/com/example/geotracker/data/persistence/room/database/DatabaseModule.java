@@ -11,7 +11,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import dagger.Reusable;
 
 @Module
 public class DatabaseModule {

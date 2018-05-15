@@ -10,7 +10,8 @@ import com.example.geotracker.domain.interactors.qualifiers.AllJourneys;
 
 import java.util.List;
 
-import io.reactivex.Observable;
+import javax.inject.Inject;
+
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
@@ -20,6 +21,7 @@ class GetJourneysInteractor implements GetInteractor<Void, List<VisibleJourney>>
     @NonNull
     private Function<List<RestrictedJourney>, List<VisibleJourney>> journeyMapper;
 
+    @Inject
     GetJourneysInteractor(@NonNull Repository repository, @NonNull @AllJourneys Function<List<RestrictedJourney>, List<VisibleJourney>> journeyMapper) {
         this.repository = repository;
         this.journeyMapper = journeyMapper;

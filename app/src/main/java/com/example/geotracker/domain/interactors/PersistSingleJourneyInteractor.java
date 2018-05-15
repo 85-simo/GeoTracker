@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Completable;
 
-public class PersistSingleJourneyInteractor implements PersistInteractor<Void, VisibleJourney> {
+class PersistSingleJourneyInteractor implements PersistInteractor<Void, VisibleJourney> {
     @NonNull
     private Repository repository;
 

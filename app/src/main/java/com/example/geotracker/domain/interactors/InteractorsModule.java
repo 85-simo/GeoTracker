@@ -23,10 +23,24 @@ public abstract class InteractorsModule {
     abstract PersistInteractor<Long, VisibleLocation> bindSingleLocationPersistInteractor(PersistSingleLocationInteractor persistSingleLocationInteractor);
 
     @Binds
-    abstract GetInteractor<Void, List<VisibleJourney>> bindAllJourneysGetInteractor(GetJourneysInteractor getJourneysInteractor);
+    abstract PersistInteractor<Void, Boolean> bindTrackingStatePersistInteractor(PersistTrackingStateInteractor persistTrackingStateInteractor);
 
     @Binds
+    abstract PersistInteractor<Void, List<VisibleLocation>> bindLocationsListToActiveJourneyPersistInteractor(PersistLocationsForActiveJourneyInteractor persistLocationsForActiveJourneyInteractor);
+
+    @Binds
+    abstract PersistInteractor<Long, List<VisibleLocation>> bindLocationsListPersistInteractor(PersistLocationsListInteractor persistLocationsListInteractor);
+
+    @Binds
+    abstract GetInteractor<Void, List<VisibleJourney>> bindAllJourneysGetInteractor(GetJourneysInteractor getJourneysInteractor);
+
+    @AllJourneys
+    @Binds
     abstract GetInteractor<Void, Boolean> bindTrackingStateGetInteractor(GetTrackingStateInteractor getTrackingStateInteractor);
+
+    @ActiveJourneys
+    @Binds
+    abstract GetInteractor<Void, List<VisibleJourney>> bindActiveJourneysGetInteractor(GetActiveJourneyInteractor getActiveJourneyInteractor);
 
     @Binds
     abstract RetrieveInteractor<Long, List<VisibleLocation>> bindAllLocationsForGivenJourneyRetrieveInteractor(RetrieveLocationsInteractor retrieveLocationsInteractor);
@@ -41,9 +55,6 @@ public abstract class InteractorsModule {
     @ActiveJourneys
     @Binds
     abstract RetrieveInteractor<Void, List<VisibleJourney>> bindActiveJourneysRetrieveInteractor(RetrieveActiveJourneysInteractor retrieveActiveJourneysInteractor);
-
-    @Binds
-    abstract PersistInteractor<Void, Boolean> bindTrackingStatePersistInteractor(PersistTrackingStateInteractor persistTrackingStateInteractor);
 
     @Binds
     abstract BooleanInversionInteractor<Void> bindTrackingStateInversionInteractor(TrackingStateInversionInteractor trackingStateInversionInteractor);

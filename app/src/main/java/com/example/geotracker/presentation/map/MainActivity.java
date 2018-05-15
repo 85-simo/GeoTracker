@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -42,6 +41,7 @@ public class MainActivity extends BaseFragmentActivity {
     FloatingActionButton activityMainTrackingFab;
 
     private MapViewModel viewModel;
+    private MaterialDialog journeyCreationDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +60,22 @@ public class MainActivity extends BaseFragmentActivity {
                 .beginTransaction()
                 .replace(R.id.main_activity_content_fl, mapFragment, MapFragment.TAG)
                 .commit();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (this.journeyCreationDialog != null && !this.journeyCreationDialog.isShowing()) {
+            this.journeyCreationDialog.show();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (this.journeyCreationDialog != null && this.journeyCreationDialog.isShowing()) {
+            this.journeyCreationDialog.dismiss();
+        }
+        super.onPause();
     }
 
     @Override
@@ -141,15 +157,13 @@ public class MainActivity extends BaseFragmentActivity {
                             break;
                         case TYPE_SHOW_NEW_JOURNEY_CREATOR:
                             new MaterialDialog.Builder(mainActivity)
-                                    .title("Please enter a name for this journey")
-                                    .input(null, null, false, new MaterialDialog.InputCallback() {
-                                        @Override
-                                        public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-                                            mainActivity.viewModel.onJourneyCreationValuesSubmitted(input.toString());
-                                        }
+                                    .title(R.string.journey_creation_dialog_title)
+                                    .input(null, null, false, (dialog, input) -> {
+                                        mainActivity.viewModel.onJourneyCreationValuesSubmitted(input.toString());
+                                        mainActivity.journeyCreationDialog = null;
                                     })
                                     .show();
-
+                            break;
                     }
                 }
             }
