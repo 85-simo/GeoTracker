@@ -5,6 +5,8 @@ import com.example.geotracker.data.dtos.RestrictedLocation;
 import com.example.geotracker.data.persistence.room.entities.Journey;
 import com.example.geotracker.data.persistence.room.entities.Location;
 
+import java.util.List;
+
 import dagger.Binds;
 import dagger.Module;
 import io.reactivex.functions.Function;
@@ -13,8 +15,8 @@ import io.reactivex.functions.Function;
 public abstract class DataMappersModule {
 
     @Binds
-    abstract Function<Location, RestrictedLocation> bindEntityToRestrictedLocationMapper(EntityToRestrictedLocationMapper mapper);
+    abstract Function<List<Location>, List<RestrictedLocation>> bindEntityToRestrictedLocationMapper(EntityToRestrictedLocationsMapper mapper);
 
     @Binds
-    abstract Function<Journey, RestrictedJourney> bindEntityToRestrictedJourneyMapper(EntityToRestrictedJourneyMapper mapper);
+    abstract Function<List<Journey>, List<RestrictedJourney>> bindEntityToRestrictedJourneyMapper(EntityToRestrictedJourneysMapper mapper);
 }

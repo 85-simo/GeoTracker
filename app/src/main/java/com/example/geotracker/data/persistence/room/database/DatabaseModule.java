@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import com.example.geotracker.ApplicationContext;
 import com.example.geotracker.DatabaseName;
 
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 import dagger.Reusable;
@@ -15,19 +17,19 @@ import dagger.Reusable;
 public class DatabaseModule {
 
     @Provides
-    @Reusable
+    @Singleton
     static AppDatabase provideAppDatabase(@ApplicationContext Context applicationContext, @DatabaseName String databaseName) {
         return Room.databaseBuilder(applicationContext, AppDatabase.class, databaseName)
                 .build();
     }
     @Provides
-    @Reusable
+    @Singleton
     static JourneyDAO provideJourneyDAO(@NonNull AppDatabase appDatabase) {
         return appDatabase.journeyDAO();
     }
 
     @Provides
-    @Reusable
+    @Singleton
     static LocationDAO provideLocationDAO(@NonNull AppDatabase appDatabase) {
         return appDatabase.locationDAO();
     }

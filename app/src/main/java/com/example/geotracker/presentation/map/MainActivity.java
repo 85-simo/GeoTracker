@@ -7,17 +7,22 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.content.res.AppCompatResources;
 import android.widget.FrameLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
+import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.presentation.map.fragments.MapFragment;
 import com.example.geotracker.presentation.tracking.TrackingService;
+
+import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
@@ -45,9 +50,11 @@ public class MainActivity extends BaseFragmentActivity {
         ButterKnife.bind(this);
         this.viewModel = ViewModelProviders.of(this, this.viewModelFactory).get(MapViewModel.class);
         this.viewModel.getObservablePermissionRequestStream()
-                .observe(this, new PermissionRequestObserver());
+                .observe(this, new PermissionRequestObserver(this));
         this.viewModel.getObservableTrackingStateStream()
-                .observe(this, new TrackingStateChangesObserver());
+                .observe(this, new TrackingStateChangesObserver(this));
+        this.viewModel.getObservableMapEventStream()
+                .observe(this, new MapEventsStreamObserver(this));
         MapFragment mapFragment = MapFragment.newInstance();
         getSupportFragmentManager()
                 .beginTransaction()
@@ -66,36 +73,85 @@ public class MainActivity extends BaseFragmentActivity {
     }
 
 
-    private class PermissionRequestObserver implements Observer<PermissionsRequestEvent> {
+    private static class PermissionRequestObserver implements Observer<PermissionsRequestEvent> {
+        private WeakReference<MainActivity> activityWeakReference;
+
+        PermissionRequestObserver(MainActivity mainActivity) {
+            this.activityWeakReference = new WeakReference<>(mainActivity);
+        }
+
         @Override
         public void onChanged(@Nullable PermissionsRequestEvent permissionsRequestEvent) {
-            if (permissionsRequestEvent != null) {
-                MainActivity.super.requestPermissions(permissionsRequestEvent.getRequestRationaleStringResId(), permissionsRequestEvent.getRequestedPermissions());
+            MainActivity mainActivity = this.activityWeakReference.get();
+            if (mainActivity != null) {
+                if (permissionsRequestEvent != null) {
+                    mainActivity.requestPermissions(permissionsRequestEvent.getRequestRationaleStringResId(), permissionsRequestEvent.getRequestedPermissions());
+                }
             }
         }
     }
 
-    private class TrackingStateChangesObserver implements Observer<Boolean> {
+    private static class TrackingStateChangesObserver implements Observer<Boolean> {
+        private WeakReference<MainActivity> activityWeakReference;
+
+        TrackingStateChangesObserver(MainActivity mainActivity) {
+            this.activityWeakReference = new WeakReference<>(mainActivity);
+        }
 
         @Override
         public void onChanged(@Nullable Boolean trackingState) {
-            if (trackingState != null) {
-                Drawable stateDrawable = null;
-                Intent serviceIntent = new Intent(MainActivity.this, TrackingService.class);
-                if (trackingState) {
-                    stateDrawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.ic_stop);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        startForegroundService(serviceIntent);
+            MainActivity mainActivity = this.activityWeakReference.get();
+            if (mainActivity != null) {
+                if (trackingState != null) {
+                    Drawable stateDrawable = null;
+                    if (trackingState) {
+                        stateDrawable = AppCompatResources.getDrawable(mainActivity.getApplicationContext(), R.drawable.ic_stop);
+                    } else {
+                        stateDrawable = AppCompatResources.getDrawable(mainActivity.getApplicationContext(), R.drawable.ic_play_arrow);
                     }
-                    else {
-                        startService(serviceIntent);
+                    mainActivity.activityMainTrackingFab.setImageDrawable(stateDrawable);
+                }
+            }
+        }
+    }
+
+    private static class MapEventsStreamObserver implements Observer<MapEvent> {
+        private WeakReference<MainActivity> activityWeakReference;
+
+        MapEventsStreamObserver(MainActivity mainActivity) {
+            this.activityWeakReference = new WeakReference<>(mainActivity);
+        }
+
+        @Override
+        public void onChanged(@Nullable MapEvent mapEvent) {
+            MainActivity mainActivity = this.activityWeakReference.get();
+            if (mainActivity != null) {
+                if (mapEvent != null) {
+                    Intent serviceIntent = new Intent(mainActivity, TrackingService.class);
+                    switch (mapEvent.getType()) {
+                        case TYPE_START_TRACKING_SERVICE:
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                mainActivity.startForegroundService(serviceIntent);
+                            } else {
+                                mainActivity.startService(serviceIntent);
+                            }
+                            break;
+                        case TYPE_STOP_TRACKING_SERVICE:
+                            mainActivity.stopService(serviceIntent);
+                            break;
+                        case TYPE_SHOW_NEW_JOURNEY_CREATOR:
+                            new MaterialDialog.Builder(mainActivity)
+                                    .title("Please enter a name for this journey")
+                                    .input(null, null, false, new MaterialDialog.InputCallback() {
+                                        @Override
+                                        public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+                                            mainActivity.viewModel.onJourneyCreationValuesSubmitted(input.toString());
+                                        }
+                                    })
+                                    .show();
+
                     }
                 }
-                else {
-                    stateDrawable = AppCompatResources.getDrawable(getApplicationContext(), R.drawable.ic_play_arrow);
-                    stopService(serviceIntent);
-                }
-                MainActivity.this.activityMainTrackingFab.setImageDrawable(stateDrawable);
             }
         }
     }
