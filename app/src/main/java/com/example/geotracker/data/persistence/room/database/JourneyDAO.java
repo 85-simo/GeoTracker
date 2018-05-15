@@ -20,14 +20,14 @@ import io.reactivex.Single;
 @Dao
 public abstract class JourneyDAO {
 
-    @Insert(onConflict = OnConflictStrategy.FAIL)
-    public abstract void insertJourney(@NonNull Journey journey);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    public abstract long insertJourney(@NonNull Journey journey);
 
     @Insert(onConflict = OnConflictStrategy.FAIL)
     public abstract void insertJourneys(@NonNull List<Journey> journeys);
 
-    @Update(onConflict = OnConflictStrategy.FAIL)
-    public abstract void updateJourney(@NonNull Journey journey);
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    public abstract int updateJourney(@NonNull Journey journey);
 
     @Update(onConflict = OnConflictStrategy.FAIL)
     public abstract void updateJourneys(@NonNull List<Journey> journeys);
@@ -40,11 +40,12 @@ public abstract class JourneyDAO {
 
     @Transaction
     public void upsertJourney(@NonNull Journey journey) {
-        try {
-            insertJourney(journey);
-        }
-        catch (SQLiteConstraintException e) {
+        Journey journeyById = getJourneyById(journey.getId());
+        if (journeyById != null) {
             updateJourney(journey);
+        }
+        else {
+            insertJourney(journey);
         }
     }
 
@@ -53,4 +54,7 @@ public abstract class JourneyDAO {
 
     @Query("SELECT * FROM journeys ORDER BY started_at DESC")
     public abstract Flowable<List<Journey>> getRefreshingSortedJourneys();
+
+    @Query("SELECT * FROM journeys WHERE id = :id")
+    public abstract Journey getJourneyById(@NonNull long id);
 }

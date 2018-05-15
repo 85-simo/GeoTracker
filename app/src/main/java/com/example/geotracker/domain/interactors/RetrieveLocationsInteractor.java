@@ -16,9 +16,9 @@ public class RetrieveLocationsInteractor implements RetrieveInteractor<Long, Lis
     @NonNull
     private Repository repository;
     @NonNull
-    private Function<RestrictedLocation, VisibleLocation> locationMapper;
+    private Function<List<RestrictedLocation>, List<VisibleLocation>> locationMapper;
 
-    RetrieveLocationsInteractor(@NonNull Repository repository, @NonNull Function<RestrictedLocation, VisibleLocation> locationMapper) {
+    RetrieveLocationsInteractor(@NonNull Repository repository, @NonNull Function<List<RestrictedLocation>, List<VisibleLocation>> locationMapper) {
         this.repository = repository;
         this.locationMapper = locationMapper;
     }
@@ -27,9 +27,6 @@ public class RetrieveLocationsInteractor implements RetrieveInteractor<Long, Lis
     public Flowable<List<VisibleLocation>> retrieve(@NonNull Long journeyId) {
         return this.repository
                 .getRefreshingLocationsForJourney(journeyId)
-                .flatMap(Flowable::fromIterable)
-                .map(this.locationMapper)
-                .toList()
-                .toFlowable();
+                .map(this.locationMapper);
     }
 }

@@ -142,9 +142,12 @@ public class MapFragment extends BaseFragment {
     private void centerMapOnUserPosition() {
         this.mFusedLocationProviderClient.getLastLocation()
                 .addOnSuccessListener(location -> {
-                    if (MapFragment.this.googleMap != null) {
+                    if (MapFragment.this.googleMap != null && location != null) {
                         LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                         MapFragment.this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, DEFAULT_ZOOM_LEVEL));
+                    }
+                    else {
+                        centerMapOnUserPosition();
                     }
                 });
     }

@@ -3,12 +3,14 @@ package com.example.geotracker.data.persistence.room.entities;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.example.geotracker.data.persistence.DbConstants;
 
 @Entity(tableName = DbConstants.Journey.TABLE_NAME)
 public class Journey {
-    public static final long GENERATE_NEW_IDENTIFIER = 0L;
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DbConstants.Journey.COL_ID)
@@ -26,11 +28,12 @@ public class Journey {
     @ColumnInfo(name = DbConstants.Journey.COL_COMPLETED_AT)
     private long completedAtTimestamp;
 
-    public Journey(long id, boolean complete, long startedAtTimestamp, long completedAtTimestamp) {
+    public Journey(long id, boolean complete, long startedAtTimestamp, long completedAtTimestamp, String title) {
         this.id = id;
         this.complete = complete;
         this.startedAtTimestamp = startedAtTimestamp;
         this.completedAtTimestamp = completedAtTimestamp;
+        this.title = title;
     }
 
     public long getId() {

@@ -6,6 +6,7 @@ import com.example.geotracker.data.dtos.RestrictedJourney;
 import com.example.geotracker.data.repositories.Repository;
 import com.example.geotracker.domain.base.GetInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
+import com.example.geotracker.domain.interactors.qualifiers.AllJourneys;
 
 import java.util.List;
 
@@ -17,9 +18,9 @@ class GetJourneysInteractor implements GetInteractor<Void, List<VisibleJourney>>
     @NonNull
     private Repository repository;
     @NonNull
-    private Function<RestrictedJourney, VisibleJourney> journeyMapper;
+    private Function<List<RestrictedJourney>, List<VisibleJourney>> journeyMapper;
 
-    GetJourneysInteractor(@NonNull Repository repository, @NonNull Function<RestrictedJourney, VisibleJourney> journeyMapper) {
+    GetJourneysInteractor(@NonNull Repository repository, @NonNull @AllJourneys Function<List<RestrictedJourney>, List<VisibleJourney>> journeyMapper) {
         this.repository = repository;
         this.journeyMapper = journeyMapper;
     }
@@ -28,8 +29,6 @@ class GetJourneysInteractor implements GetInteractor<Void, List<VisibleJourney>>
     public Single<List<VisibleJourney>> get(Void param) {
         return this.repository
                 .getJourneysOneShot()
-                .flatMapObservable(Observable::fromIterable)
-                .map(this.journeyMapper)
-                .toList();
+                .map(this.journeyMapper);
     }
 }

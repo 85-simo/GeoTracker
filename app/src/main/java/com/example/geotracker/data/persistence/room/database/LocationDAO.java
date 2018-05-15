@@ -39,14 +39,18 @@ public abstract class LocationDAO {
 
     @Transaction
     public void upsertLocation(@NonNull Location location) {
-        try {
+        Location locationById = getLocationById(location.getId());
+        if (locationById == null) {
             insertLocation(location);
         }
-        catch (SQLiteConstraintException e) {
+        else {
             updateLocation(location);
         }
     }
 
     @Query("SELECT * FROM locations WHERE journey_id = :journeyId ORDER BY locations.timestamp DESC")
     public abstract Flowable<List<Location>> getSortedLocationsByJourneyIdFlowable(long journeyId);
+
+    @Query("SELECT * FROM locations WHERE id = :id")
+    public abstract Location getLocationById(long id);
 }

@@ -20,6 +20,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -30,9 +31,9 @@ class RepositoryImpl implements Repository {
     @NonNull
     private LocationDAO locationDAO;
     @NonNull
-    private Function<Location, RestrictedLocation> entityToRestrictedLocationMapper;
+    private Function<List<Location>, List<RestrictedLocation>> entityToRestrictedLocationMapper;
     @NonNull
-    private Function<Journey, RestrictedJourney> entityToRestrictedJourneyMapper;
+    private Function<List<Journey>, List<RestrictedJourney>> entityToRestrictedJourneyMapper;
     @NonNull
     private SharedPreferencesProvider sharedPreferencesProvider;
 
@@ -40,8 +41,8 @@ class RepositoryImpl implements Repository {
     RepositoryImpl(@NonNull JourneyDAO journeyDAO,
                    @NonNull LocationDAO locationDAO,
                    @NonNull SharedPreferencesProvider sharedPreferencesProvider,
-                   @NonNull Function<Location, RestrictedLocation> entityToRestrictedLocationMapper,
-                   @NonNull Function<Journey, RestrictedJourney> entityToRestrictedJourneyMapper) {
+                   @NonNull Function<List<Location>, List<RestrictedLocation>> entityToRestrictedLocationMapper,
+                   @NonNull Function<List<Journey>, List<RestrictedJourney>> entityToRestrictedJourneyMapper) {
         this.journeyDAO = journeyDAO;
         this.locationDAO = locationDAO;
         this.entityToRestrictedLocationMapper = entityToRestrictedLocationMapper;
@@ -56,9 +57,7 @@ class RepositoryImpl implements Repository {
                 .getAllJourneysSingle()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
-                .flatMapObservable(Observable::fromIterable)
-                .map(this.entityToRestrictedJourneyMapper)
-                .toList();
+                .map(this.entityToRestrictedJourneyMapper);
     }
 
     @Override
@@ -73,10 +72,7 @@ class RepositoryImpl implements Repository {
                 .getRefreshingSortedJourneys()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
-                .flatMap(Flowable::fromIterable)
-                .map(this.entityToRestrictedJourneyMapper)
-                .toList()
-                .toFlowable();
+                .map(this.entityToRestrictedJourneyMapper);
     }
 
     @Override
@@ -85,10 +81,7 @@ class RepositoryImpl implements Repository {
                 .getSortedLocationsByJourneyIdFlowable(journeyId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
-                .flatMap(Flowable::fromIterable)
-                .map(this.entityToRestrictedLocationMapper)
-                .toList()
-                .toFlowable();
+                .map(this.entityToRestrictedLocationMapper);
     }
 
     @Override
@@ -123,7 +116,8 @@ class RepositoryImpl implements Repository {
                 Journey journey = new Journey(restrictedJourney.getIdentifier(),
                         restrictedJourney.isComplete(),
                         startedAtTimestamp,
-                        completedAtTimestamp);
+                        completedAtTimestamp,
+                        restrictedJourney.getTitle());
                 RepositoryImpl.this.journeyDAO.upsertJourney(journey);
                 emitter.onComplete();
             }

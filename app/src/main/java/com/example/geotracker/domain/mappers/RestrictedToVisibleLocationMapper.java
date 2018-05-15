@@ -3,14 +3,28 @@ package com.example.geotracker.domain.mappers;
 import com.example.geotracker.data.dtos.RestrictedLocation;
 import com.example.geotracker.domain.dtos.VisibleLocation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import io.reactivex.functions.Function;
 
-public class RestrictedToVisibleLocationMapper implements Function<RestrictedLocation, VisibleLocation> {
+class RestrictedToVisibleLocationsMapper implements Function<List<RestrictedLocation>, List<VisibleLocation>> {
+    @Inject
+    RestrictedToVisibleLocationsMapper() {
+
+    }
+
     @Override
-    public VisibleLocation apply(RestrictedLocation restrictedLocation) throws Exception {
-        return new VisibleLocation(restrictedLocation.getIdentifier(),
-                restrictedLocation.getLatitude(),
-                restrictedLocation.getLongitude(),
-                restrictedLocation.getRecordedAtIso());
+    public List<VisibleLocation> apply(List<RestrictedLocation> restrictedLocations) throws Exception {
+        List<VisibleLocation> result = new ArrayList<>(restrictedLocations.size());
+        for (RestrictedLocation restrictedLocation : restrictedLocations) {
+            result.add(new VisibleLocation(restrictedLocation.getIdentifier(),
+                    restrictedLocation.getLatitude(),
+                    restrictedLocation.getLongitude(),
+                    restrictedLocation.getRecordedAtIso()));
+        }
+        return result;
     }
 }
