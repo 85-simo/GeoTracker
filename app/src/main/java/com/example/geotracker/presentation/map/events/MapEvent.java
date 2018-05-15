@@ -11,7 +11,7 @@ public class MapEvent {
     }
     @NonNull
     private Type type;
-    @Nullable
+
     private long activeJourneyId;
 
     public MapEvent(@NonNull Type type, long activeJourneyId) {
@@ -24,7 +24,7 @@ public class MapEvent {
         return type;
     }
 
-    @Nullable
+
     public long getActiveJourneyId() {
         return activeJourneyId;
     }

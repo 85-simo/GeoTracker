@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragment;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
 import com.example.geotracker.presentation.map.MapViewModel;
+import com.example.geotracker.presentation.map.events.PathEvent;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,6 +32,8 @@ import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.lang.ref.WeakReference;
 
@@ -53,6 +57,7 @@ public class MapFragment extends BaseFragment {
     Unbinder unbinder;
 
     private MapViewModel mapViewModel;
+    private Polyline pathPolyline;
 
     @Nullable
     private GoogleMap googleMap;
@@ -211,8 +216,37 @@ public class MapFragment extends BaseFragment {
                 if (!mapFragment.needsPermissions()) {
                     mapFragment.setUpMap(googleMap);
                 }
+                if (mapFragment.getActivity() != null) {
+                    mapFragment.mapViewModel.getObservableJourneyEventStream()
+                            .observe(mapFragment.getActivity(), new PathEventsObserver(mapFragment));
+                }
             }
+        }
+    }
 
+    private static class PathEventsObserver implements Observer<PathEvent> {
+        private WeakReference<MapFragment> fragmentWeakReference;
+
+        PathEventsObserver(MapFragment mapFragment) {
+            this.fragmentWeakReference = new WeakReference<>(mapFragment);
+        }
+
+        @Override
+        public void onChanged(@Nullable PathEvent pathEvent) {
+            if (pathEvent != null) {
+                MapFragment mapFragment = this.fragmentWeakReference.get();
+                if (mapFragment != null) {
+                    if (mapFragment.pathPolyline != null) {
+                        mapFragment.pathPolyline.remove();
+                    }
+                    PolylineOptions options = pathEvent.getPathPolylineOptions()
+                            .width(4)
+                            .color(ContextCompat.getColor(mapFragment.applicationContext, R.color.colorAccent));
+                    if (mapFragment.googleMap != null) {
+                        mapFragment.pathPolyline = mapFragment.googleMap.addPolyline(options);
+                    }
+                }
+            }
         }
     }
 }

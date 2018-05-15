@@ -9,15 +9,20 @@ import com.example.geotracker.R;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
+import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
 import com.example.geotracker.presentation.PerActivity;
+import com.example.geotracker.presentation.map.events.PathEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.utils.DateTimeUtils;
 import com.example.geotracker.utils.SingleLiveEvent;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.reactivestreams.Subscription;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,6 +37,8 @@ public class MapViewModel extends ViewModel {
     private RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor;
     @NonNull
     private PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor;
+    @NonNull
+    private RetrieveInteractor<Void, List<VisibleLocation>> retrieveVisibleLocationsForActiveJourneyInteractor;
 
     @NonNull
     private MutableLiveData<PermissionsRequestEvent> permissionsRequestLiveEvent;
@@ -41,6 +48,8 @@ public class MapViewModel extends ViewModel {
     private MutableLiveData<Boolean> trackingStateStreamEvent;
     @NonNull
     private MutableLiveData<MapEvent> mapEventsObservableStream;
+    @NonNull
+    private MutableLiveData<PathEvent> journeyEventsObservableStream;
 
     @NonNull
     private CompositeDisposable compositeDisposable;
@@ -48,20 +57,26 @@ public class MapViewModel extends ViewModel {
 
     @Inject
     MapViewModel(@NonNull @ActiveJourneys RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor,
-                 @NonNull PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor) {
+                 @NonNull PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor,
+                 @NonNull RetrieveInteractor<Void, List<VisibleLocation>> retrieveVisibleLocationsForActiveJourneyInteractor) {
         this.retrieveActiveJourneysInteractor = retrieveActiveJourneysInteractor;
         this.persistSingleJourneyInteractor = persistSingleJourneyInteractor;
+        this.retrieveVisibleLocationsForActiveJourneyInteractor = retrieveVisibleLocationsForActiveJourneyInteractor;
 
         this.permissionsRequestLiveEvent = new SingleLiveEvent<>();
         this.permissionGrantLiveEvent = new SingleLiveEvent<>();
         this.trackingStateStreamEvent = new MutableLiveData<>();
         this.mapEventsObservableStream = new SingleLiveEvent<>();
+        this.journeyEventsObservableStream = new SingleLiveEvent<>();
 
         this.compositeDisposable = new CompositeDisposable();
 
         this.compositeDisposable.add(this.retrieveActiveJourneysInteractor.retrieve(null)
                 .subscribe(new ActiveJourneysUpdatesConsumer())
         );
+        this.compositeDisposable.add(this.retrieveVisibleLocationsForActiveJourneyInteractor
+                .retrieve(null)
+                .subscribe(new ActivePathRecordingUpdatesConsumer()));
     }
 
     public LiveData<PermissionsRequestEvent> getObservablePermissionRequestStream() {
@@ -78,6 +93,10 @@ public class MapViewModel extends ViewModel {
 
     public LiveData<MapEvent> getObservableMapEventStream() {
         return this.mapEventsObservableStream;
+    }
+
+    public LiveData<PathEvent> getObservableJourneyEventStream() {
+        return this.journeyEventsObservableStream;
     }
 
 
@@ -151,7 +170,7 @@ public class MapViewModel extends ViewModel {
     private class ActiveJourneysUpdatesConsumer implements Consumer<List<VisibleJourney>> {
 
         @Override
-        public void accept(List<VisibleJourney> visibleJourneys) throws Exception {
+        public void accept(List<VisibleJourney> visibleJourneys) {
             Schedulers.computation().scheduleDirect(new Runnable() {
                 @Override
                 public void run() {
@@ -162,6 +181,24 @@ public class MapViewModel extends ViewModel {
                         MapViewModel.this.trackingStateStreamEvent.postValue(true);
                     }
                 }
+            });
+        }
+    }
+
+    private class ActivePathRecordingUpdatesConsumer implements Consumer<List<VisibleLocation>> {
+
+        @Override
+        public void accept(List<VisibleLocation> visibleLocations) {
+            Schedulers.computation().scheduleDirect(() -> {
+                List<LatLng> pathLatLngList = new ArrayList<>(visibleLocations.size());
+                for (VisibleLocation visibleLocation : visibleLocations) {
+                    LatLng locationLatLng = new LatLng(visibleLocation.getLatitude(), visibleLocation.getLongitude());
+                    pathLatLngList.add(locationLatLng);
+                }
+                PolylineOptions polylineOptions = new PolylineOptions()
+                        .addAll(pathLatLngList);
+                PathEvent pathEvent = new PathEvent(PathEvent.Type.TYPE_PATH_UPDATE_RECEIVED, polylineOptions);
+                MapViewModel.this.journeyEventsObservableStream.postValue(pathEvent);
             });
         }
     }

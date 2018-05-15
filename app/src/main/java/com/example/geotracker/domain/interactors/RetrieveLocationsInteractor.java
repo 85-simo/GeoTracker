@@ -9,6 +9,8 @@ import com.example.geotracker.domain.dtos.VisibleLocation;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 
@@ -18,6 +20,7 @@ class RetrieveLocationsInteractor implements RetrieveInteractor<Long, List<Visib
     @NonNull
     private Function<List<RestrictedLocation>, List<VisibleLocation>> locationMapper;
 
+    @Inject
     RetrieveLocationsInteractor(@NonNull Repository repository, @NonNull Function<List<RestrictedLocation>, List<VisibleLocation>> locationMapper) {
         this.repository = repository;
         this.locationMapper = locationMapper;
