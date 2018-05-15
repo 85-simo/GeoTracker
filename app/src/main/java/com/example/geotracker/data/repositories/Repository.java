@@ -16,6 +16,7 @@ public interface Repository {
     Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId);
     Flowable<Boolean> getRefreshingTrackingState();
     Completable addLocationToJourney(RestrictedLocation location, long journeyIdentifier);
+    Completable addLocationsToJourney(List<RestrictedLocation> locations, long journeyIdentifier);
     Completable insertOrUpdateJourney(RestrictedJourney journey);
     Completable setTrackingState(boolean trackingState);
 }

@@ -3,4 +3,5 @@
     <string name="common_settings">Settings</string>
     <string name="tracking_service_notification_text">Location tracking active</string>
     <string name="tracking_service_notification_channel_name">Tracking Alerts</string>
+    <string name="journey_creation_dialog_title">Please enter a name for this journey</string>
 </resources>

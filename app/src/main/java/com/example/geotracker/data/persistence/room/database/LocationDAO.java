@@ -7,7 +7,6 @@ import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
-import android.database.sqlite.SQLiteConstraintException;
 import android.support.annotation.NonNull;
 
 import com.example.geotracker.data.persistence.room.entities.Location;
@@ -45,6 +44,13 @@ public abstract class LocationDAO {
         }
         else {
             updateLocation(location);
+        }
+    }
+
+    @Transaction
+    public void upsertLocations(@NonNull List<Location> locations) {
+        for (Location location : locations) {
+            upsertLocation(location);
         }
     }
 

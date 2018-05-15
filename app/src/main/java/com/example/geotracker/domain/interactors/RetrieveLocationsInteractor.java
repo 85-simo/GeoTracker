@@ -12,7 +12,7 @@ import java.util.List;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 
-public class RetrieveLocationsInteractor implements RetrieveInteractor<Long, List<VisibleLocation>> {
+class RetrieveLocationsInteractor implements RetrieveInteractor<Long, List<VisibleLocation>> {
     @NonNull
     private Repository repository;
     @NonNull

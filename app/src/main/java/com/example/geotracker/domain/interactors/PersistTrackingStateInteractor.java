@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Completable;
 
-public class PersistTrackingStateInteractor implements PersistInteractor<Void, Boolean> {
+class PersistTrackingStateInteractor implements PersistInteractor<Void, Boolean> {
     @NonNull
     private Repository repository;
 

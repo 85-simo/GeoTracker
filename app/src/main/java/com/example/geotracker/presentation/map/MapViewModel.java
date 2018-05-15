@@ -6,8 +6,6 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
 import com.example.geotracker.R;
-import com.example.geotracker.domain.base.BooleanInversionInteractor;
-import com.example.geotracker.domain.base.GetInteractor;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
@@ -18,19 +16,13 @@ import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.utils.DateTimeUtils;
 import com.example.geotracker.utils.SingleLiveEvent;
 
-import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 

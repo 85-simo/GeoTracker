@@ -11,6 +11,7 @@ import com.example.geotracker.data.persistence.room.entities.Journey;
 import com.example.geotracker.data.persistence.room.entities.Location;
 import com.example.geotracker.utils.DateTimeUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,9 +19,7 @@ import javax.inject.Singleton;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -105,6 +104,27 @@ class RepositoryImpl implements Repository {
         })
        .subscribeOn(Schedulers.io())
        .observeOn(Schedulers.computation());
+    }
+
+    @Override
+    public Completable addLocationsToJourney(List<RestrictedLocation> locations, long journeyIdentifier) {
+        return Completable.create(emitter -> {
+            try {
+                List<Location> locationsToBePersisted = new ArrayList<>(locations.size());
+                for (RestrictedLocation restrictedLocation : locations) {
+                    long recordAtMillis = DateTimeUtils.isoUTCDateTimeStringToMillis(restrictedLocation.getRecordedAtIso());
+                    Location location = new Location(restrictedLocation.getIdentifier(), restrictedLocation.getLatitude(), restrictedLocation.getLongitude(), recordAtMillis, journeyIdentifier);
+                    locationsToBePersisted.add(location);
+                }
+                this.locationDAO.upsertLocations(locationsToBePersisted);
+                emitter.onComplete();
+            }
+            catch (Exception e) {
+                emitter.onError(e);
+            }
+        })
+        .subscribeOn(Schedulers.io())
+        .observeOn(Schedulers.computation());
     }
 
     @Override
