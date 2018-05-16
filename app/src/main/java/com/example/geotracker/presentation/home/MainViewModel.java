@@ -17,6 +17,7 @@ import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
 import com.example.geotracker.presentation.details.JourneyDetailsActivity;
 import com.example.geotracker.presentation.home.map.events.ActivityEvent;
+import com.example.geotracker.presentation.home.map.events.LocationUpdateEvent;
 import com.example.geotracker.presentation.home.map.events.NavigationEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PathEvent;
@@ -61,6 +62,8 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<ActivityEvent> activityEventsObservableStream;
     @NonNull
     private MutableLiveData<NavigationEvent> navigationEventsObservableStream;
+    @NonNull
+    private MutableLiveData<LocationUpdateEvent> locationUpdateEventsObservableStream;
 
     @NonNull
     private CompositeDisposable compositeDisposable;
@@ -82,6 +85,7 @@ public class MainViewModel extends ViewModel {
         this.journeyEventsObservableStream = new MutableLiveData<>();
         this.activityEventsObservableStream = new SingleLiveEvent<>();
         this.navigationEventsObservableStream = new SingleLiveEvent<>();
+        this.locationUpdateEventsObservableStream = new MutableLiveData<>();
 
         this.compositeDisposable = new CompositeDisposable();
 
@@ -122,7 +126,12 @@ public class MainViewModel extends ViewModel {
 
     @NonNull
     public LiveData<NavigationEvent> getObservableNavigationEventsStream() {
-        return navigationEventsObservableStream;
+        return this.navigationEventsObservableStream;
+    }
+
+    @NonNull
+    public LiveData<LocationUpdateEvent> getObservableLocationUpdatesStream() {
+        return this.locationUpdateEventsObservableStream;
     }
 
     public void requestPermissions(String... requiredPermissions) {
@@ -219,6 +228,16 @@ public class MainViewModel extends ViewModel {
 
                 })
                 .subscribe();
+    }
+
+    public void signalLocationUpdateReceived(double lat, double lng) {
+        Schedulers.computation().scheduleDirect(new Runnable() {
+            @Override
+            public void run() {
+                LocationUpdateEvent locationUpdateEvent = new LocationUpdateEvent(lat, lng);
+                MainViewModel.this.locationUpdateEventsObservableStream.postValue(locationUpdateEvent);
+            }
+        });
     }
 
     private void clearActivePathUpdatesDisposableIfNeeded() {

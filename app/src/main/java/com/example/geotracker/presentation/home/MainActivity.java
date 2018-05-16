@@ -1,12 +1,14 @@
 package com.example.geotracker.presentation.home;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -34,8 +36,15 @@ import com.example.geotracker.presentation.home.map.fragments.MapFragment;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.presentation.tracking.TrackingService;
+import com.example.geotracker.utils.PermissionsUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -56,6 +65,8 @@ public class MainActivity extends BaseFragmentActivity {
 
     private MainViewModel viewModel;
     private MaterialDialog journeyCreationDialog;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private LocationCallback mLocationCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +94,14 @@ public class MainActivity extends BaseFragmentActivity {
             }
         });
         selectTab(R.id.item_map);
+        this.mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        this.mLocationCallback = new UserLocationUpdateCallback(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startLocationUpdates();
     }
 
     @Override
@@ -102,19 +121,36 @@ public class MainActivity extends BaseFragmentActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        stopLocationUpdates();
+    }
+
+    @Override
     protected void onPermissionsGranted(String[] grantedPermissions) {
         this.viewModel.onPermissionsGranted();
     }
 
     @OnClick(R.id.activity_main_tracking_fab)
     void onTrackingButtonClick() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (PermissionsUtils.arePermissionsNeeded(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) {
             this.viewModel.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION);
         }
         else {
             this.viewModel.onTrackingButtonClicked();
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startLocationUpdates() {
+        LocationRequest locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(TimeUnit.SECONDS.toMillis(5));
+        this.mFusedLocationProviderClient.requestLocationUpdates(locationRequest, this.mLocationCallback, null);
+    }
+
+    private void stopLocationUpdates() {
+        this.mFusedLocationProviderClient.removeLocationUpdates(this.mLocationCallback);
     }
 
 
@@ -277,6 +313,23 @@ public class MainActivity extends BaseFragmentActivity {
                         mainActivity.startActivity(intent);
                         break;
                 }
+            }
+        }
+    }
+
+    private static class UserLocationUpdateCallback extends LocationCallback {
+        private WeakReference<MainActivity> activityWeakReference;
+
+        UserLocationUpdateCallback(MainActivity mainActivity) {
+            this.activityWeakReference = new WeakReference<>(mainActivity);
+        }
+
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            MainActivity mainActivity = this.activityWeakReference.get();
+            if (mainActivity != null && locationResult != null) {
+                Location lastLocation = locationResult.getLastLocation();
+                mainActivity.viewModel.signalLocationUpdateReceived(lastLocation.getLatitude(), lastLocation.getLongitude());
             }
         }
     }
