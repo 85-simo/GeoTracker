@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.example.geotracker.R;
 import com.example.geotracker.domain.base.PersistInteractor;
@@ -28,6 +29,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -53,7 +55,8 @@ public class MapViewModel extends ViewModel {
 
     @NonNull
     private CompositeDisposable compositeDisposable;
-    private Subscription subscription;
+    @Nullable
+    private Disposable activePathUpdatesConsumerDisposable;
 
     @Inject
     MapViewModel(@NonNull @ActiveJourneys RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor,
@@ -67,16 +70,13 @@ public class MapViewModel extends ViewModel {
         this.permissionGrantLiveEvent = new SingleLiveEvent<>();
         this.trackingStateStreamEvent = new MutableLiveData<>();
         this.mapEventsObservableStream = new SingleLiveEvent<>();
-        this.journeyEventsObservableStream = new SingleLiveEvent<>();
+        this.journeyEventsObservableStream = new MutableLiveData<>();
 
         this.compositeDisposable = new CompositeDisposable();
 
         this.compositeDisposable.add(this.retrieveActiveJourneysInteractor.retrieve(null)
                 .subscribe(new ActiveJourneysUpdatesConsumer())
         );
-        this.compositeDisposable.add(this.retrieveVisibleLocationsForActiveJourneyInteractor
-                .retrieve(null)
-                .subscribe(new ActivePathRecordingUpdatesConsumer()));
     }
 
     public LiveData<PermissionsRequestEvent> getObservablePermissionRequestStream() {
@@ -124,6 +124,7 @@ public class MapViewModel extends ViewModel {
                         VisibleJourney completedJourney = new VisibleJourney(activeJourney.getIdentifier(), true, activeJourney.getStartedAtUTCDateTimeIso(), completedDateTimeUTCString, activeJourney.getTitle());
                         MapViewModel.this.persistSingleJourneyInteractor
                                 .persist(null, completedJourney)
+                                .observeOn(Schedulers.computation())
                                 .doOnComplete(() -> MapViewModel.this.mapEventsObservableStream.postValue(new MapEvent(MapEvent.Type.TYPE_STOP_TRACKING_SERVICE, -1)))
                                 .subscribe();
                     }
@@ -146,6 +147,7 @@ public class MapViewModel extends ViewModel {
                     final Subscription[] subscription = {null};
                     MapViewModel.this.retrieveActiveJourneysInteractor
                             .retrieve(null)
+                            .observeOn(Schedulers.computation())
                             .doOnSubscribe(s -> subscription[0] = s)
                             .doOnNext(visibleJourneys -> {
                                 if (!visibleJourneys.isEmpty()) {
@@ -161,8 +163,15 @@ public class MapViewModel extends ViewModel {
                 .subscribe();
     }
 
+    private void clearActivePathUpdatesDisposableIfNeeded() {
+        if (this.activePathUpdatesConsumerDisposable != null && !this.activePathUpdatesConsumerDisposable.isDisposed()) {
+            this.activePathUpdatesConsumerDisposable.dispose();
+        }
+    }
+
     @Override
     protected void onCleared() {
+        clearActivePathUpdatesDisposableIfNeeded();
         this.compositeDisposable.dispose();
         super.onCleared();
     }
@@ -171,17 +180,17 @@ public class MapViewModel extends ViewModel {
 
         @Override
         public void accept(List<VisibleJourney> visibleJourneys) {
-            Schedulers.computation().scheduleDirect(new Runnable() {
-                @Override
-                public void run() {
-                    if (visibleJourneys.isEmpty()) {
-                        MapViewModel.this.trackingStateStreamEvent.postValue(false);
-                    }
-                    else {
-                        MapViewModel.this.trackingStateStreamEvent.postValue(true);
-                    }
-                }
-            });
+            if (visibleJourneys.isEmpty()) {
+                MapViewModel.this.trackingStateStreamEvent.postValue(false);
+                clearActivePathUpdatesDisposableIfNeeded();
+            }
+            else {
+                MapViewModel.this.trackingStateStreamEvent.postValue(true);
+                MapViewModel.this.activePathUpdatesConsumerDisposable = MapViewModel.this.retrieveVisibleLocationsForActiveJourneyInteractor
+                        .retrieve(null)
+                        .observeOn(Schedulers.computation())
+                        .subscribe(new ActivePathRecordingUpdatesConsumer());
+            }
         }
     }
 
@@ -189,17 +198,15 @@ public class MapViewModel extends ViewModel {
 
         @Override
         public void accept(List<VisibleLocation> visibleLocations) {
-            Schedulers.computation().scheduleDirect(() -> {
-                List<LatLng> pathLatLngList = new ArrayList<>(visibleLocations.size());
-                for (VisibleLocation visibleLocation : visibleLocations) {
-                    LatLng locationLatLng = new LatLng(visibleLocation.getLatitude(), visibleLocation.getLongitude());
-                    pathLatLngList.add(locationLatLng);
-                }
-                PolylineOptions polylineOptions = new PolylineOptions()
-                        .addAll(pathLatLngList);
-                PathEvent pathEvent = new PathEvent(PathEvent.Type.TYPE_PATH_UPDATE_RECEIVED, polylineOptions);
-                MapViewModel.this.journeyEventsObservableStream.postValue(pathEvent);
-            });
+            List<LatLng> pathLatLngList = new ArrayList<>(visibleLocations.size());
+            for (VisibleLocation visibleLocation : visibleLocations) {
+                LatLng locationLatLng = new LatLng(visibleLocation.getLatitude(), visibleLocation.getLongitude());
+                pathLatLngList.add(locationLatLng);
+            }
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .addAll(pathLatLngList);
+            PathEvent pathEvent = new PathEvent(PathEvent.Type.TYPE_PATH_UPDATE_RECEIVED, polylineOptions);
+            MapViewModel.this.journeyEventsObservableStream.postValue(pathEvent);
         }
     }
 }

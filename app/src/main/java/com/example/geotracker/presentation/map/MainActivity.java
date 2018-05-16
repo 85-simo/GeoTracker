@@ -1,15 +1,18 @@
 package com.example.geotracker.presentation.map;
 
+import android.Manifest;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.widget.FrameLayout;
 
@@ -85,7 +88,13 @@ public class MainActivity extends BaseFragmentActivity {
 
     @OnClick(R.id.activity_main_tracking_fab)
     void onTrackingButtonClick() {
-        this.viewModel.onTrackingButtonClicked();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            this.viewModel.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+        else {
+            this.viewModel.onTrackingButtonClicked();
+        }
     }
 
 
