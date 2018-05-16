@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.journeys.fragments;
+package com.example.geotracker.presentation.home.journeys.fragments;
 
 
 import android.arch.lifecycle.Observer;
@@ -8,11 +8,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +25,8 @@ import com.example.geotracker.R;
 import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.presentation.base.BaseFragment;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
-import com.example.geotracker.presentation.journeys.JourneysViewModel;
+import com.example.geotracker.presentation.home.journeys.JourneysViewModel;
+import com.example.geotracker.presentation.journeys.adapters.JourneyClickListener;
 import com.example.geotracker.presentation.journeys.adapters.JourneyRecyclerAdapter;
 import com.example.geotracker.presentation.journeys.adapters.datamodel.JourneyItem;
 import com.example.geotracker.presentation.journeys.events.JourneysEvent;
@@ -52,6 +56,8 @@ public class JourneysFragment extends BaseFragment {
     Unbinder unbinder;
     @BindView(R.id.fragment_journeys_toolbar)
     Toolbar fragmentJourneysToolbar;
+    @BindView(R.id.fragment_journeys_appbar)
+    AppBarLayout appBarLayout;
 
 
     private JourneysViewModel viewModel;
@@ -71,7 +77,7 @@ public class JourneysFragment extends BaseFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.viewModel = ViewModelProviders.of((BaseFragmentActivity) context, this.viewModelFactory).get(JourneysViewModel.class);
+        this.viewModel = ViewModelProviders.of((BaseFragmentActivity)context, this.viewModelFactory).get(JourneysViewModel.class);
     }
 
     @Override
@@ -87,6 +93,7 @@ public class JourneysFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         this.fragmentJourneysToolbar.setTitle(R.string.journeys_list_title);
         this.fragmentJourneysToolbar.setTitleTextColor(ContextCompat.getColor(this.applicationContext, android.R.color.white));
+        ViewCompat.setElevation(this.appBarLayout, getResources().getDimensionPixelSize(R.dimen.bars_elevation));
         if (getActivity() != null) {
             RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(), GRID_SPANS_COUNT);
             RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
@@ -94,10 +101,10 @@ public class JourneysFragment extends BaseFragment {
             this.fragmentJourneysRv.setItemAnimator(itemAnimator);
             this.fragmentJourneysRv.setHasFixedSize(true);
             List<JourneyItem> emptyDataset = new ArrayList<>();
-            RecyclerView.Adapter adapter = new JourneyRecyclerAdapter(emptyDataset);
+            RecyclerView.Adapter adapter = new JourneyRecyclerAdapter(emptyDataset, new JourneyItemClickListener());
             this.fragmentJourneysRv.setAdapter(adapter);
             this.viewModel.getJourneysEventsObservableStream()
-                    .observe(getActivity(), new JourneyListUpdateObserver(this));
+                    .observe(this, new JourneyListUpdateObserver(this));
         }
     }
 
@@ -133,6 +140,14 @@ public class JourneysFragment extends BaseFragment {
                         break;
                 }
             }
+        }
+    }
+
+    private class JourneyItemClickListener implements JourneyClickListener {
+
+        @Override
+        public void onJourneyItemClicked(long clickedItemId) {
+
         }
     }
 }

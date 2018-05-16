@@ -9,4 +9,5 @@
     <dimen name="journey_item_hint_text_size">12sp</dimen>
     <dimen name="journey_item_title_subtitle_chain_distance_half">0dp</dimen>
     <dimen name="journey_item_hint_icon_size">15dp</dimen>
+    <dimen name="bars_elevation">6dp</dimen>
 </resources>

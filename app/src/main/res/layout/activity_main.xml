@@ -20,7 +20,6 @@
             app:itemIconTint="@color/menu_item_selector"
             app:itemTextColor="@color/menu_item_selector"
             app:itemBackground="?attr/selectableItemBackground"
-            app:elevation="6dp"
             app:menu="@menu/bottom_navigation_items">
         </android.support.design.widget.BottomNavigationView>
         <FrameLayout android:id="@+id/main_activity_content_fl"

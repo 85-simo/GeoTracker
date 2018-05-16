@@ -9,13 +9,14 @@
     app:cardUseCompatPadding="true"
     android:layout_gravity="center"
     app:cardCornerRadius="0dp">
-    <android.support.constraint.ConstraintLayout
+    <android.support.constraint.ConstraintLayout android:id="@+id/row_journey_cl"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="@dimen/journey_item_padding_horizontal"
         android:paddingRight="@dimen/journey_item_padding_horizontal"
         android:paddingTop="@dimen/journey_item_padding_vertical"
-        android:paddingBottom="@dimen/journey_item_padding_vertical">
+        android:paddingBottom="@dimen/journey_item_padding_vertical"
+        android:background="?attr/selectableItemBackground">
         <TextView android:id="@+id/row_journey_title_tv"
             android:layout_width="0dp"
             android:layout_height="0dp"

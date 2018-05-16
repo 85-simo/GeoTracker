@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation;
+package com.example.geotracker;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

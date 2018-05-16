@@ -4,6 +4,8 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
+import com.example.geotracker.PerActivity;
+
 import java.util.Map;
 
 import javax.inject.Inject;
