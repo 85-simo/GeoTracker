@@ -23,7 +23,9 @@ import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragment;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
 import com.example.geotracker.presentation.home.MainViewModel;
+import com.example.geotracker.presentation.home.map.events.LocationUpdateEvent;
 import com.example.geotracker.presentation.map.events.PathEvent;
+import com.example.geotracker.utils.PermissionsUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -46,7 +48,7 @@ import butterknife.Unbinder;
  * A simple {@link Fragment} subclass.
  */
 public class MapFragment extends BaseFragment {
-    private static final int DEFAULT_ZOOM_LEVEL = 12;
+    private static final int DEFAULT_ZOOM_LEVEL = 17;
     private static final int POLYLINE_WIDTH = 10;
     public static final String TAG = MapFragment.class.getCanonicalName() + ".TAG";
 
@@ -91,7 +93,7 @@ public class MapFragment extends BaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         unbinder = ButterKnife.bind(this, view);
@@ -104,6 +106,8 @@ public class MapFragment extends BaseFragment {
         this.mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.applicationContext);
         this.mainViewModel.getObservablePermissionGrantStream().observe(this, new PermissionGrantEventObserver(this));
         this.mapFragment = prepareMapFragment();
+        this.mainViewModel.getObservableLocationUpdatesStream()
+                .observe(this, new LocationUpdatesEventsObserver(this));
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_map_content_fl, mapFragment)
@@ -113,7 +117,7 @@ public class MapFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (!this.mapPreparing && needsPermissions()) {
+        if (!this.mapPreparing && PermissionsUtils.arePermissionsNeeded(this.applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) {
             this.mainViewModel.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION);
         }
         else if (this.googleMap != null){
@@ -204,11 +208,6 @@ public class MapFragment extends BaseFragment {
         }
     }
 
-    private boolean needsPermissions() {
-        return ActivityCompat.checkSelfPermission(this.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this.applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-    }
-
     private static class MapReadyCallback implements OnMapReadyCallback {
         private WeakReference<MapFragment> fragmentWeakReference;
 
@@ -223,7 +222,7 @@ public class MapFragment extends BaseFragment {
                 mapFragment.googleMap = googleMap;
                 mapFragment.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mapFragment.mapPreparing = false;
-                if (!mapFragment.needsPermissions()) {
+                if (!PermissionsUtils.arePermissionsNeeded(mapFragment.applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) {
                     mapFragment.setUpMap(googleMap);
                 }
                 if (mapFragment.getActivity() != null) {
@@ -256,6 +255,23 @@ public class MapFragment extends BaseFragment {
                         mapFragment.pathPolyline = mapFragment.googleMap.addPolyline(options);
                     }
                 }
+            }
+        }
+    }
+
+    private static class LocationUpdatesEventsObserver implements Observer<LocationUpdateEvent> {
+        private WeakReference<MapFragment> fragmentWeakReference;
+
+        LocationUpdatesEventsObserver(MapFragment mapFragment) {
+            this.fragmentWeakReference = new WeakReference<>(mapFragment);
+        }
+
+        @Override
+        public void onChanged(@Nullable LocationUpdateEvent locationUpdateEvent) {
+            MapFragment mapFragment = this.fragmentWeakReference.get();
+            if (mapFragment != null && locationUpdateEvent != null && mapFragment.googleMap != null) {
+                LatLng userLatLng = new LatLng(locationUpdateEvent.getLat(), locationUpdateEvent.getLng());
+                mapFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, DEFAULT_ZOOM_LEVEL));
             }
         }
     }

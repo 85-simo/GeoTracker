@@ -3,8 +3,6 @@ package com.example.geotracker.presentation.home.map.events;
 import android.app.Activity;
 import android.os.Bundle;
 
-import java.util.Map;
-
 public class NavigationEvent {
     public enum Type {
         TYPE_ACTIVITY
