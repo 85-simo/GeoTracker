@@ -22,7 +22,7 @@ import com.example.geotracker.ApplicationContext;
 import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragment;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
-import com.example.geotracker.presentation.home.map.MainViewModel;
+import com.example.geotracker.presentation.home.MainViewModel;
 import com.example.geotracker.presentation.map.events.PathEvent;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -47,6 +47,7 @@ import butterknife.Unbinder;
  */
 public class MapFragment extends BaseFragment {
     private static final int DEFAULT_ZOOM_LEVEL = 12;
+    private static final int POLYLINE_WIDTH = 10;
     public static final String TAG = MapFragment.class.getCanonicalName() + ".TAG";
 
     @Inject
@@ -120,7 +121,6 @@ public class MapFragment extends BaseFragment {
         }
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onResume() {
         super.onResume();
@@ -250,7 +250,7 @@ public class MapFragment extends BaseFragment {
                         mapFragment.pathPolyline.remove();
                     }
                     PolylineOptions options = pathEvent.getPathPolylineOptions()
-                            .width(4)
+                            .width(POLYLINE_WIDTH)
                             .color(ContextCompat.getColor(mapFragment.applicationContext, R.color.colorAccent));
                     if (mapFragment.googleMap != null) {
                         mapFragment.pathPolyline = mapFragment.googleMap.addPolyline(options);

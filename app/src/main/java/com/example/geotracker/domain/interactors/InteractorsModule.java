@@ -60,5 +60,8 @@ public abstract class InteractorsModule {
     abstract RetrieveInteractor<Void, List<VisibleLocation>> bindAllLocationsForActiveJourneyRetrieveInteractor(RetrieveActiveJourneyLocationsInteractor retrieveActiveJourneyLocationsInteractor);
 
     @Binds
+    abstract RetrieveInteractor<Long, VisibleJourney> bindSingleJourneyRetrieveInteractor(RetrieveSingleJourneyInteractor retrieveSingleJourneyInteractor);
+
+    @Binds
     abstract BooleanInversionInteractor<Void> bindTrackingStateInversionInteractor(TrackingStateInversionInteractor trackingStateInversionInteractor);
 }

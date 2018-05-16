@@ -1,7 +1,6 @@
-package com.example.geotracker.presentation.home.map;
+package com.example.geotracker.presentation.home;
 
 import com.example.geotracker.PerActivity;
-import com.example.geotracker.presentation.home.journeys.JourneysViewModel;
 import com.example.geotracker.presentation.home.journeys.JourneysViewModelModule;
 import com.example.geotracker.presentation.home.journeys.fragments.JourneysFragmentModule;
 import com.example.geotracker.presentation.home.map.fragments.MapFragmentModule;
