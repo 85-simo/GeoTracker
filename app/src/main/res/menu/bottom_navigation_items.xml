@@ -2,9 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/item_map"
         android:title="Map"
-        android:icon="@drawable/ic_map" />
+        android:icon="@drawable/ic_map"
+        android:orderInCategory="0"/>
     <item android:id="@+id/item_list"
         android:title="Journeys"
         android:icon="@drawable/ic_list"
+        android:orderInCategory="1"
         />
 </menu>

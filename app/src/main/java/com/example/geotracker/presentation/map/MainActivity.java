@@ -9,16 +9,21 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.content.res.AppCompatResources;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -67,11 +72,6 @@ public class MainActivity extends BaseFragmentActivity {
                 .observe(this, new MapEventsStreamObserver(this));
         this.viewModel.getObservableActivityEventStream()
                 .observe(this, new ActivityEventsStreamObserver(this));
-        MapFragment mapFragment = MapFragment.newInstance();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main_activity_content_fl, mapFragment, MapFragment.TAG)
-                .commit();
         this.mainActivityBnv.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -80,6 +80,7 @@ public class MainActivity extends BaseFragmentActivity {
                 return true;
             }
         });
+        selectTab(R.id.item_map);
     }
 
     @Override
@@ -157,6 +158,38 @@ public class MainActivity extends BaseFragmentActivity {
         }
     }
 
+    private void selectTab(@IdRes int tabItemId) {
+        Fragment fragment = null;
+        String transactionTag = null;
+        boolean trackingSwitchVisible = true;
+        switch (tabItemId) {
+            case R.id.item_map:
+                fragment = MapFragment.newInstance();
+                transactionTag = MapFragment.TAG;
+                break;
+            case R.id.item_list:
+                fragment = JourneysFragment.newInstance();
+                transactionTag = JourneysFragment.TAG;
+                trackingSwitchVisible = false;
+                break;
+        }
+        if (!TextUtils.isEmpty(transactionTag) && fragment != null) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager()
+                    .beginTransaction();
+            int selectedItemOrder = this.mainActivityBnv.getMenu().findItem(tabItemId).getOrder();
+            if (selectedItemOrder == 0) {
+                fragmentTransaction = fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+            }
+            else {
+                fragmentTransaction = fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+            }
+            fragmentTransaction.replace(R.id.main_activity_content_fl, fragment, transactionTag)
+                    .commit();
+        }
+        this.activityMainTrackingFab.setVisibility(trackingSwitchVisible ? View.VISIBLE : View.GONE);
+    }
+
+
     private static class MapEventsStreamObserver implements Observer<MapEvent> {
         private WeakReference<MainActivity> activityWeakReference;
 
@@ -210,23 +243,13 @@ public class MainActivity extends BaseFragmentActivity {
                 switch (activityEvent.getType()) {
                     case TYPE_TAB_SELECTED:
                         ActivityEvent.TabType selectedTab = activityEvent.getTabType();
-                        Fragment fragment = null;
-                        String transactionTag = null;
                         switch (selectedTab) {
                             case TAB_TYPE_MAP:
-                                fragment = MapFragment.newInstance();
-                                transactionTag = MapFragment.TAG;
+                                mainActivity.selectTab(R.id.item_map);
                                 break;
                             case TAB_TYPE_JOURNEYS:
-                                fragment = JourneysFragment.newInstance();
-                                transactionTag = JourneysFragment.TAG;
+                                mainActivity.selectTab(R.id.item_list);
                                 break;
-                        }
-                        if (!TextUtils.isEmpty(transactionTag) && fragment != null) {
-                            mainActivity.getSupportFragmentManager()
-                                    .beginTransaction()
-                                    .replace(R.id.main_activity_content_fl, fragment, transactionTag)
-                                    .commit();
                         }
                         break;
                 }

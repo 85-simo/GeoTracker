@@ -8,6 +8,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.geotracker.ApplicationContext;
 import com.example.geotracker.R;
 import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.presentation.base.BaseFragment;
@@ -41,11 +43,16 @@ public class JourneysFragment extends BaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+    @Inject
+    @ApplicationContext
+    Context applicationContext;
+
     @BindView(R.id.fragment_journeys_rv)
     RecyclerView fragmentJourneysRv;
     Unbinder unbinder;
     @BindView(R.id.fragment_journeys_toolbar)
     Toolbar fragmentJourneysToolbar;
+
 
     private JourneysViewModel viewModel;
 
@@ -79,6 +86,7 @@ public class JourneysFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.fragmentJourneysToolbar.setTitle(R.string.journeys_list_title);
+        this.fragmentJourneysToolbar.setTitleTextColor(ContextCompat.getColor(this.applicationContext, android.R.color.white));
         if (getActivity() != null) {
             RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(), GRID_SPANS_COUNT);
             RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
@@ -119,7 +127,7 @@ public class JourneysFragment extends BaseFragment {
                         }
                         RecyclerView.Adapter adapter = journeysFragment.fragmentJourneysRv.getAdapter();
                         if (adapter instanceof JourneyRecyclerAdapter) {
-                            JourneyRecyclerAdapter castAdapter = (JourneyRecyclerAdapter)adapter;
+                            JourneyRecyclerAdapter castAdapter = (JourneyRecyclerAdapter) adapter;
                             castAdapter.newDataset(listDataset);
                         }
                         break;
