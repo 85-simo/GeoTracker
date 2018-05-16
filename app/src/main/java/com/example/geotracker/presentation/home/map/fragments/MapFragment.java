@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.map.fragments;
+package com.example.geotracker.presentation.home.map.fragments;
 
 
 import android.Manifest;
@@ -22,7 +22,7 @@ import com.example.geotracker.ApplicationContext;
 import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragment;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
-import com.example.geotracker.presentation.map.MapViewModel;
+import com.example.geotracker.presentation.home.map.MainViewModel;
 import com.example.geotracker.presentation.map.events.PathEvent;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -56,7 +56,7 @@ public class MapFragment extends BaseFragment {
     Context applicationContext;
     Unbinder unbinder;
 
-    private MapViewModel mapViewModel;
+    private MainViewModel mainViewModel;
     private Polyline pathPolyline;
 
     @Nullable
@@ -86,7 +86,7 @@ public class MapFragment extends BaseFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.mapViewModel = ViewModelProviders.of((BaseFragmentActivity) context, this.viewModelFactory).get(MapViewModel.class);
+        this.mainViewModel = ViewModelProviders.of((BaseFragmentActivity) context, this.viewModelFactory).get(MainViewModel.class);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class MapFragment extends BaseFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.applicationContext);
-        this.mapViewModel.getObservablePermissionGrantStream().observe(this, new PermissionGrantEventObserver(this));
+        this.mainViewModel.getObservablePermissionGrantStream().observe(this, new PermissionGrantEventObserver(this));
         this.mapFragment = prepareMapFragment();
         getChildFragmentManager()
                 .beginTransaction()
@@ -113,7 +113,7 @@ public class MapFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         if (!this.mapPreparing && needsPermissions()) {
-            this.mapViewModel.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION);
+            this.mainViewModel.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION);
         }
         else if (this.googleMap != null){
             setUpMap(this.googleMap);
@@ -227,7 +227,7 @@ public class MapFragment extends BaseFragment {
                     mapFragment.setUpMap(googleMap);
                 }
                 if (mapFragment.getActivity() != null) {
-                    mapFragment.mapViewModel.getObservableJourneyEventStream()
+                    mapFragment.mainViewModel.getObservableJourneyEventStream()
                             .observe(mapFragment.getActivity(), new PathEventsObserver(mapFragment));
                 }
             }

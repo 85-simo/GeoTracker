@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.example.geotracker.data.DataModule;
 import com.example.geotracker.domain.DomainModule;
-import com.example.geotracker.presentation.map.MainActivityModule;
+import com.example.geotracker.presentation.home.map.MainActivityModule;
 import com.example.geotracker.presentation.tracking.TrackingServiceModule;
 
 import javax.inject.Singleton;

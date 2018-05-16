@@ -29,7 +29,7 @@ class RetrieveLocationsInteractor implements RetrieveInteractor<Long, List<Visib
     @Override
     public Flowable<List<VisibleLocation>> retrieve(@NonNull Long journeyId) {
         return this.repository
-                .getRefreshingLocationsForJourney(journeyId)
+                .getRefreshingLocationsByJourneyId(journeyId)
                 .map(this.locationMapper);
     }
 }

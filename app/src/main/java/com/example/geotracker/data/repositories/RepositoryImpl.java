@@ -34,6 +34,8 @@ class RepositoryImpl implements Repository {
     @NonNull
     private Function<List<Journey>, List<RestrictedJourney>> entityToRestrictedJourneyMapper;
     @NonNull
+    private Function<Journey, RestrictedJourney> singleEntityToRestrictedJourneyMapper;
+    @NonNull
     private SharedPreferencesProvider sharedPreferencesProvider;
 
     @Inject
@@ -41,11 +43,13 @@ class RepositoryImpl implements Repository {
                    @NonNull LocationDAO locationDAO,
                    @NonNull SharedPreferencesProvider sharedPreferencesProvider,
                    @NonNull Function<List<Location>, List<RestrictedLocation>> entityToRestrictedLocationMapper,
-                   @NonNull Function<List<Journey>, List<RestrictedJourney>> entityToRestrictedJourneyMapper) {
+                   @NonNull Function<List<Journey>, List<RestrictedJourney>> entityToRestrictedJourneyMapper,
+                   @NonNull Function<Journey, RestrictedJourney> singleEntityToRestrictedJourneyMapper) {
         this.journeyDAO = journeyDAO;
         this.locationDAO = locationDAO;
         this.entityToRestrictedLocationMapper = entityToRestrictedLocationMapper;
         this.entityToRestrictedJourneyMapper = entityToRestrictedJourneyMapper;
+        this.singleEntityToRestrictedJourneyMapper = singleEntityToRestrictedJourneyMapper;
         this.sharedPreferencesProvider = sharedPreferencesProvider;
     }
 
@@ -57,6 +61,15 @@ class RepositoryImpl implements Repository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .map(this.entityToRestrictedJourneyMapper);
+    }
+
+    @Override
+    public Flowable<RestrictedJourney> getRefreshingJourneyById(long journeyId) {
+        return this.journeyDAO
+                .getRefreshingJourneyById(journeyId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .map(this.singleEntityToRestrictedJourneyMapper);
     }
 
     @Override
@@ -75,7 +88,7 @@ class RepositoryImpl implements Repository {
     }
 
     @Override
-    public Flowable<List<RestrictedLocation>> getRefreshingLocationsForJourney(long journeyId) {
+    public Flowable<List<RestrictedLocation>> getRefreshingLocationsByJourneyId(long journeyId) {
         return this.locationDAO
                 .getSortedLocationsByJourneyIdFlowable(journeyId)
                 .subscribeOn(Schedulers.io())

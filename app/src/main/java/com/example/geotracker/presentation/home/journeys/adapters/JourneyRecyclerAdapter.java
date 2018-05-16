@@ -1,6 +1,8 @@
 package com.example.geotracker.presentation.journeys.adapters;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,16 +14,24 @@ import com.example.geotracker.R;
 import com.example.geotracker.presentation.journeys.adapters.datamodel.JourneyItem;
 import com.example.geotracker.utils.DateTimeUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class JourneyRecyclerAdapter extends RecyclerView.Adapter<JourneyRecyclerAdapter.ViewHolder> {
+    @NonNull
     private List<JourneyItem> mDataset;
+    @Nullable
+    private JourneyClickListener mListener;
 
-    public JourneyRecyclerAdapter(@NonNull List<JourneyItem> mDataset) {
+
+    public JourneyRecyclerAdapter(@NonNull List<JourneyItem> mDataset, @Nullable JourneyClickListener mListener) {
         this.mDataset = mDataset;
+        this.mListener = mListener;
+
     }
 
     @NonNull
@@ -29,7 +39,7 @@ public class JourneyRecyclerAdapter extends RecyclerView.Adapter<JourneyRecycler
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View itemView = inflater.inflate(R.layout.row_journey, parent, false);
-        return new ViewHolder(itemView);
+        return new ViewHolder(itemView, this);
     }
 
     @Override
@@ -61,10 +71,26 @@ public class JourneyRecyclerAdapter extends RecyclerView.Adapter<JourneyRecycler
         TextView journeyItemHintTv;
         @BindView(R.id.journey_item_hint_iv)
         ImageView journeyItemHintIv;
+        @BindView(R.id.row_journey_cl)
+        ConstraintLayout rowJourneyCl;
 
-        public ViewHolder(View itemView) {
+        private WeakReference<JourneyRecyclerAdapter> adapterWeakReference;
+
+        public ViewHolder(View itemView, @NonNull JourneyRecyclerAdapter adapter) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            this.adapterWeakReference = new WeakReference<>(adapter);
+        }
+
+        @OnClick(R.id.row_journey_cl)
+        void onItemClick() {
+            JourneyRecyclerAdapter adapter = this.adapterWeakReference.get();
+            if (adapter != null) {
+                JourneyItem clickedItem = adapter.mDataset.get(getAdapterPosition());
+                if (adapter.mListener != null) {
+                    adapter.mListener.onJourneyItemClicked(clickedItem.getJourneyId());
+                }
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ import com.example.geotracker.R;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.presentation.base.BaseService;
-import com.example.geotracker.presentation.map.MainActivity;
+import com.example.geotracker.presentation.home.map.MainActivity;
 import com.example.geotracker.utils.DateTimeUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;

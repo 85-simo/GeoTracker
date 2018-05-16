@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.map;
+package com.example.geotracker.presentation.home.map;
 
 import android.app.Activity;
 

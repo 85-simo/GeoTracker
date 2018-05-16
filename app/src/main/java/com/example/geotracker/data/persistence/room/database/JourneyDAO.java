@@ -39,7 +39,7 @@ public abstract class JourneyDAO {
 
     @Transaction
     public void upsertJourney(@NonNull Journey journey) {
-        Journey journeyById = getJourneyById(journey.getId());
+        Journey journeyById = getJourneyByIdSync(journey.getId());
         if (journeyById != null) {
             updateJourney(journey);
         }
@@ -55,5 +55,8 @@ public abstract class JourneyDAO {
     public abstract Flowable<List<Journey>> getRefreshingSortedJourneys();
 
     @Query("SELECT * FROM journeys WHERE id = :id")
-    public abstract Journey getJourneyById(@NonNull long id);
+    public abstract Journey getJourneyByIdSync(long id);
+
+    @Query("SELECT * FROM journeys WHERE id = :id")
+    public abstract Flowable<Journey> getRefreshingJourneyById(long id);
 }

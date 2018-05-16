@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.map;
+package com.example.geotracker.presentation.home.map;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -13,7 +13,7 @@ import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
-import com.example.geotracker.presentation.PerActivity;
+import com.example.geotracker.PerActivity;
 import com.example.geotracker.presentation.map.events.ActivityEvent;
 import com.example.geotracker.presentation.map.events.PathEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
@@ -36,7 +36,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 @PerActivity
-public class MapViewModel extends ViewModel {
+public class MainViewModel extends ViewModel {
     @NonNull
     private RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor;
     @NonNull
@@ -63,9 +63,9 @@ public class MapViewModel extends ViewModel {
     private Disposable activePathUpdatesConsumerDisposable;
 
     @Inject
-    MapViewModel(@NonNull @ActiveJourneys RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor,
-                 @NonNull PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor,
-                 @NonNull RetrieveInteractor<Void, List<VisibleLocation>> retrieveVisibleLocationsForActiveJourneyInteractor) {
+    MainViewModel(@NonNull @ActiveJourneys RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor,
+                  @NonNull PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor,
+                  @NonNull RetrieveInteractor<Void, List<VisibleLocation>> retrieveVisibleLocationsForActiveJourneyInteractor) {
         this.retrieveActiveJourneysInteractor = retrieveActiveJourneysInteractor;
         this.persistSingleJourneyInteractor = persistSingleJourneyInteractor;
         this.retrieveVisibleLocationsForActiveJourneyInteractor = retrieveVisibleLocationsForActiveJourneyInteractor;
@@ -112,12 +112,12 @@ public class MapViewModel extends ViewModel {
     public void requestPermissions(String... requiredPermissions) {
         Schedulers.computation().scheduleDirect(() -> {
             PermissionsRequestEvent permissionsRequestEvent = new PermissionsRequestEvent(requiredPermissions, R.string.permission_access_location_denied_rationale);
-            MapViewModel.this.permissionsRequestLiveEvent.postValue(permissionsRequestEvent);
+            MainViewModel.this.permissionsRequestLiveEvent.postValue(permissionsRequestEvent);
         });
     }
 
     public void onPermissionsGranted() {
-        Schedulers.computation().scheduleDirect(() -> MapViewModel.this.permissionGrantLiveEvent.postValue(null));
+        Schedulers.computation().scheduleDirect(() -> MainViewModel.this.permissionGrantLiveEvent.postValue(null));
     }
 
     public void onTabSelected(@IdRes int selectedTabId, boolean itemAlreadyChecked) {
@@ -134,16 +134,20 @@ public class MapViewModel extends ViewModel {
                     }
                     if (selectedTabType != null) {
                         ActivityEvent activityEvent = new ActivityEvent(ActivityEvent.Type.TYPE_TAB_SELECTED, selectedTabType);
-                        MapViewModel.this.activityEventsObservableStream.postValue(activityEvent);
+                        MainViewModel.this.activityEventsObservableStream.postValue(activityEvent);
                     }
                 }
             }
         });
     }
 
+    public void onJourneyItemClicked(long clickedJourneyId) {
+
+    }
+
     public void onTrackingButtonClicked() {
         final Subscription[] subscription = {null};
-        MapViewModel.this.retrieveActiveJourneysInteractor
+        MainViewModel.this.retrieveActiveJourneysInteractor
                 .retrieve(null)
                 .observeOn(Schedulers.computation())
                 .doOnSubscribe(s -> subscription[0] = s)
@@ -152,14 +156,14 @@ public class MapViewModel extends ViewModel {
                         VisibleJourney activeJourney = activeJourneys.get(0);
                         String completedDateTimeUTCString = DateTimeUtils.utcMillisToDateTimeIsoString(System.currentTimeMillis());
                         VisibleJourney completedJourney = new VisibleJourney(activeJourney.getIdentifier(), true, activeJourney.getStartedAtUTCDateTimeIso(), completedDateTimeUTCString, activeJourney.getTitle());
-                        MapViewModel.this.persistSingleJourneyInteractor
+                        MainViewModel.this.persistSingleJourneyInteractor
                                 .persist(null, completedJourney)
                                 .observeOn(Schedulers.computation())
-                                .doOnComplete(() -> MapViewModel.this.mapEventsObservableStream.postValue(new MapEvent(MapEvent.Type.TYPE_STOP_TRACKING_SERVICE, -1)))
+                                .doOnComplete(() -> MainViewModel.this.mapEventsObservableStream.postValue(new MapEvent(MapEvent.Type.TYPE_STOP_TRACKING_SERVICE, -1)))
                                 .subscribe();
                     }
                     else {
-                        MapViewModel.this.mapEventsObservableStream.postValue(new MapEvent(MapEvent.Type.TYPE_SHOW_NEW_JOURNEY_CREATOR, -1));
+                        MainViewModel.this.mapEventsObservableStream.postValue(new MapEvent(MapEvent.Type.TYPE_SHOW_NEW_JOURNEY_CREATOR, -1));
                     }
                     subscription[0].cancel();
                 })
@@ -175,7 +179,7 @@ public class MapViewModel extends ViewModel {
                 .observeOn(Schedulers.computation())
                 .doOnComplete(() -> {
                     final Subscription[] subscription = {null};
-                    MapViewModel.this.retrieveActiveJourneysInteractor
+                    MainViewModel.this.retrieveActiveJourneysInteractor
                             .retrieve(null)
                             .observeOn(Schedulers.computation())
                             .doOnSubscribe(s -> subscription[0] = s)
@@ -183,7 +187,7 @@ public class MapViewModel extends ViewModel {
                                 if (!visibleJourneys.isEmpty()) {
                                     VisibleJourney activeJourney1 = visibleJourneys.get(0);
                                     MapEvent mapEvent = new MapEvent(MapEvent.Type.TYPE_START_TRACKING_SERVICE, activeJourney1.getIdentifier());
-                                    MapViewModel.this.mapEventsObservableStream.postValue(mapEvent);
+                                    MainViewModel.this.mapEventsObservableStream.postValue(mapEvent);
                                 }
                                 subscription[0].cancel();
                             })
@@ -211,12 +215,12 @@ public class MapViewModel extends ViewModel {
         @Override
         public void accept(List<VisibleJourney> visibleJourneys) {
             if (visibleJourneys.isEmpty()) {
-                MapViewModel.this.trackingStateStreamEvent.postValue(false);
+                MainViewModel.this.trackingStateStreamEvent.postValue(false);
                 clearActivePathUpdatesDisposableIfNeeded();
             }
             else {
-                MapViewModel.this.trackingStateStreamEvent.postValue(true);
-                MapViewModel.this.activePathUpdatesConsumerDisposable = MapViewModel.this.retrieveVisibleLocationsForActiveJourneyInteractor
+                MainViewModel.this.trackingStateStreamEvent.postValue(true);
+                MainViewModel.this.activePathUpdatesConsumerDisposable = MainViewModel.this.retrieveVisibleLocationsForActiveJourneyInteractor
                         .retrieve(null)
                         .observeOn(Schedulers.computation())
                         .subscribe(new ActivePathRecordingUpdatesConsumer());
@@ -236,7 +240,7 @@ public class MapViewModel extends ViewModel {
             PolylineOptions polylineOptions = new PolylineOptions()
                     .addAll(pathLatLngList);
             PathEvent pathEvent = new PathEvent(PathEvent.Type.TYPE_PATH_UPDATE_RECEIVED, polylineOptions);
-            MapViewModel.this.journeyEventsObservableStream.postValue(pathEvent);
+            MainViewModel.this.journeyEventsObservableStream.postValue(pathEvent);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.map;
+package com.example.geotracker.presentation.home.map;
 
 import android.Manifest;
 import android.arch.lifecycle.Observer;
@@ -19,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -29,11 +30,11 @@ import android.widget.FrameLayout;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
-import com.example.geotracker.presentation.journeys.fragments.JourneysFragment;
+import com.example.geotracker.presentation.home.journeys.fragments.JourneysFragment;
+import com.example.geotracker.presentation.home.map.fragments.MapFragment;
 import com.example.geotracker.presentation.map.events.ActivityEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
-import com.example.geotracker.presentation.map.fragments.MapFragment;
 import com.example.geotracker.presentation.tracking.TrackingService;
 
 import java.lang.ref.WeakReference;
@@ -55,7 +56,7 @@ public class MainActivity extends BaseFragmentActivity {
     @BindView(R.id.activity_main_tracking_fab)
     FloatingActionButton activityMainTrackingFab;
 
-    private MapViewModel viewModel;
+    private MainViewModel viewModel;
     private MaterialDialog journeyCreationDialog;
 
     @Override
@@ -63,7 +64,8 @@ public class MainActivity extends BaseFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        this.viewModel = ViewModelProviders.of(this, this.viewModelFactory).get(MapViewModel.class);
+        ViewCompat.setElevation(this.mainActivityBnv, getResources().getDimensionPixelSize(R.dimen.bars_elevation));
+        this.viewModel = ViewModelProviders.of(this, this.viewModelFactory).get(MainViewModel.class);
         this.viewModel.getObservablePermissionRequestStream()
                 .observe(this, new PermissionRequestObserver(this));
         this.viewModel.getObservableTrackingStateStream()

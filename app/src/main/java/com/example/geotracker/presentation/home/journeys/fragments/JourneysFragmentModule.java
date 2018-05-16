@@ -1,6 +1,7 @@
-package com.example.geotracker.presentation.journeys.fragments;
+package com.example.geotracker.presentation.home.journeys.fragments;
 
 import android.support.v4.app.Fragment;
+
 
 import dagger.Binds;
 import dagger.Module;
