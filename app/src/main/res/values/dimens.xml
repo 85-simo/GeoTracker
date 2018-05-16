@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="journeys_list_padding_vertical">18dp</dimen>
+    <dimen name="journeys_list_padding_horizontal">12dp</dimen>
+    <dimen name="journey_item_padding_vertical">6dp</dimen>
+    <dimen name="journey_item_padding_horizontal">6dp</dimen>
+    <dimen name="journey_item_name_text_size">17sp</dimen>
+    <dimen name="journey_item_subtitle_text_size">15sp</dimen>
+    <dimen name="journey_item_hint_text_size">12sp</dimen>
+    <dimen name="journey_item_title_subtitle_chain_distance_half">12dp</dimen>
+    <dimen name="journey_item_hint_icon_size">15dp</dimen>
+</resources>
