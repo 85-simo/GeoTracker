@@ -1,22 +1,25 @@
-package com.example.geotracker.presentation.home.map;
+package com.example.geotracker.presentation.home;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.example.geotracker.PerActivity;
 import com.example.geotracker.R;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
-import com.example.geotracker.PerActivity;
-import com.example.geotracker.presentation.map.events.ActivityEvent;
-import com.example.geotracker.presentation.map.events.PathEvent;
+import com.example.geotracker.presentation.details.JourneyDetailsActivity;
+import com.example.geotracker.presentation.home.map.events.ActivityEvent;
+import com.example.geotracker.presentation.home.map.events.NavigationEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
+import com.example.geotracker.presentation.map.events.PathEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.utils.DateTimeUtils;
 import com.example.geotracker.utils.SingleLiveEvent;
@@ -56,6 +59,8 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<PathEvent> journeyEventsObservableStream;
     @NonNull
     private MutableLiveData<ActivityEvent> activityEventsObservableStream;
+    @NonNull
+    private MutableLiveData<NavigationEvent> navigationEventsObservableStream;
 
     @NonNull
     private CompositeDisposable compositeDisposable;
@@ -76,6 +81,7 @@ public class MainViewModel extends ViewModel {
         this.mapEventsObservableStream = new SingleLiveEvent<>();
         this.journeyEventsObservableStream = new MutableLiveData<>();
         this.activityEventsObservableStream = new SingleLiveEvent<>();
+        this.navigationEventsObservableStream = new SingleLiveEvent<>();
 
         this.compositeDisposable = new CompositeDisposable();
 
@@ -84,30 +90,40 @@ public class MainViewModel extends ViewModel {
         );
     }
 
+    @NonNull
     public LiveData<PermissionsRequestEvent> getObservablePermissionRequestStream() {
         return this.permissionsRequestLiveEvent;
     }
 
+    @NonNull
     public LiveData<Void> getObservablePermissionGrantStream() {
         return this.permissionGrantLiveEvent;
     }
 
+    @NonNull
     public LiveData<Boolean> getObservableTrackingStateStream() {
         return this.trackingStateStreamEvent;
     }
 
+    @NonNull
     public LiveData<MapEvent> getObservableMapEventStream() {
         return this.mapEventsObservableStream;
     }
 
+    @NonNull
     public LiveData<PathEvent> getObservableJourneyEventStream() {
         return this.journeyEventsObservableStream;
     }
 
+    @NonNull
     public LiveData<ActivityEvent> getObservableActivityEventStream() {
         return this.activityEventsObservableStream;
     }
 
+    @NonNull
+    public LiveData<NavigationEvent> getObservableNavigationEventsStream() {
+        return navigationEventsObservableStream;
+    }
 
     public void requestPermissions(String... requiredPermissions) {
         Schedulers.computation().scheduleDirect(() -> {
@@ -142,7 +158,15 @@ public class MainViewModel extends ViewModel {
     }
 
     public void onJourneyItemClicked(long clickedJourneyId) {
-
+        Schedulers.computation().scheduleDirect(new Runnable() {
+            @Override
+            public void run() {
+                Bundle extras = new Bundle();
+                extras.putLong(JourneyDetailsActivity.EXTRA_JOURNEY_ID, clickedJourneyId);
+                NavigationEvent navigationEvent = new NavigationEvent(NavigationEvent.Type.TYPE_ACTIVITY, JourneyDetailsActivity.class, extras);
+                MainViewModel.this.navigationEventsObservableStream.postValue(navigationEvent);
+            }
+        });
     }
 
     public void onTrackingButtonClicked() {

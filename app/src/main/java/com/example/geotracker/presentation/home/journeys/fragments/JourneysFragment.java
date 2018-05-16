@@ -15,7 +15,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +24,7 @@ import com.example.geotracker.R;
 import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.presentation.base.BaseFragment;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
+import com.example.geotracker.presentation.home.MainViewModel;
 import com.example.geotracker.presentation.home.journeys.JourneysViewModel;
 import com.example.geotracker.presentation.journeys.adapters.JourneyClickListener;
 import com.example.geotracker.presentation.journeys.adapters.JourneyRecyclerAdapter;
@@ -61,6 +61,7 @@ public class JourneysFragment extends BaseFragment {
 
 
     private JourneysViewModel viewModel;
+    private MainViewModel mainViewModel;
 
     public static JourneysFragment newInstance() {
         Bundle args = new Bundle();
@@ -78,6 +79,7 @@ public class JourneysFragment extends BaseFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.viewModel = ViewModelProviders.of((BaseFragmentActivity)context, this.viewModelFactory).get(JourneysViewModel.class);
+        this.mainViewModel = ViewModelProviders.of((BaseFragmentActivity)context, this.viewModelFactory).get(MainViewModel.class);
     }
 
     @Override
@@ -147,7 +149,7 @@ public class JourneysFragment extends BaseFragment {
 
         @Override
         public void onJourneyItemClicked(long clickedItemId) {
-
+            JourneysFragment.this.mainViewModel.onJourneyItemClicked(clickedItemId);
         }
     }
 }

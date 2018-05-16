@@ -23,7 +23,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".presentation.home.map.MainActivity"
+            android:name=".presentation.home.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,8 +35,9 @@
         <service
             android:name=".presentation.tracking.TrackingService"
             android:enabled="true"
-            android:exported="false"
-            />
+            android:exported="false" />
+
+        <activity android:name=".presentation.details.JourneyDetailsActivity"></activity>
     </application>
 
 </manifest>

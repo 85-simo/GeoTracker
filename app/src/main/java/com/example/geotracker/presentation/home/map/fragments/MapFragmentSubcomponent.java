@@ -1,8 +1,5 @@
 package com.example.geotracker.presentation.home.map.fragments;
 
-import com.example.geotracker.PerFragment;
-import com.example.geotracker.presentation.home.map.fragments.MapFragment;
-
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 @Subcomponent

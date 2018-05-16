@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.home.map;
+package com.example.geotracker.presentation.home;
 
 import android.Manifest;
 import android.arch.lifecycle.Observer;
@@ -12,16 +12,13 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,8 +28,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
 import com.example.geotracker.presentation.home.journeys.fragments.JourneysFragment;
+import com.example.geotracker.presentation.home.map.events.ActivityEvent;
+import com.example.geotracker.presentation.home.map.events.NavigationEvent;
 import com.example.geotracker.presentation.home.map.fragments.MapFragment;
-import com.example.geotracker.presentation.map.events.ActivityEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.presentation.tracking.TrackingService;
@@ -74,6 +72,8 @@ public class MainActivity extends BaseFragmentActivity {
                 .observe(this, new MapEventsStreamObserver(this));
         this.viewModel.getObservableActivityEventStream()
                 .observe(this, new ActivityEventsStreamObserver(this));
+        this.viewModel.getObservableNavigationEventsStream()
+                .observe(this, new NavigationEventsStreamObserver(this));
         this.mainActivityBnv.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -253,6 +253,28 @@ public class MainActivity extends BaseFragmentActivity {
                                 mainActivity.selectTab(R.id.item_list);
                                 break;
                         }
+                        break;
+                }
+            }
+        }
+    }
+
+    private static class NavigationEventsStreamObserver implements Observer<NavigationEvent> {
+        private WeakReference<MainActivity> activityWeakReference;
+
+        NavigationEventsStreamObserver(MainActivity mainActivity) {
+            this.activityWeakReference = new WeakReference<>(mainActivity);
+        }
+
+        @Override
+        public void onChanged(@Nullable NavigationEvent navigationEvent) {
+            MainActivity mainActivity = this.activityWeakReference.get();
+            if (mainActivity != null && navigationEvent != null) {
+                switch (navigationEvent.getType()) {
+                    case TYPE_ACTIVITY:
+                        Intent intent = new Intent(mainActivity, navigationEvent.getActivityClass());
+                        intent.putExtras(navigationEvent.getExtras());
+                        mainActivity.startActivity(intent);
                         break;
                 }
             }

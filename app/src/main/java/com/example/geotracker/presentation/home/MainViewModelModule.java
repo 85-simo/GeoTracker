@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.home.journeys;
+package com.example.geotracker.presentation.home;
 
 import android.arch.lifecycle.ViewModel;
 
@@ -11,10 +11,11 @@ import dagger.Module;
 import dagger.multibindings.IntoMap;
 
 @Module(includes = {ViewModelModule.class})
-public abstract class JourneysViewModelModule {
+public abstract class MainViewModelModule {
+
     @Binds
     @IntoMap
-    @ViewModelKey(JourneysViewModel.class)
+    @ViewModelKey(MainViewModel.class)
     @PerActivity
-    abstract ViewModel bindJourneysViewModel(JourneysViewModel journeysViewModel);
+    abstract ViewModel bindMainViewModel(MainViewModel mainViewModel);
 }

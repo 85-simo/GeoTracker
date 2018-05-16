@@ -26,4 +26,7 @@ public abstract class DomainMappersModule {
     @ActiveJourneys
     @Binds
     abstract Function<List<RestrictedJourney>, List<VisibleJourney>> bindRestrictedToVisibleJourneysFilteredMapper(RestrictedToVisibleJourneysFilteredMapper mapper);
+
+    @Binds
+    abstract Function<RestrictedJourney, VisibleJourney> bindSingleRestrictedToVisibleJourneyMapper(SingleRestrictedToVisibleJourneyMapper mapper);
 }

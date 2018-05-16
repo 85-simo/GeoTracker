@@ -5,11 +5,10 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
-import com.example.geotracker.PerFragment;
+import com.example.geotracker.PerActivity;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.domain.interactors.qualifiers.AllJourneys;
-import com.example.geotracker.PerActivity;
 import com.example.geotracker.presentation.journeys.events.JourneysEvent;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class JourneysViewModel extends ViewModel {
     private CompositeDisposable compositeDisposable;
 
     @Inject
-    public JourneysViewModel(@NonNull @AllJourneys RetrieveInteractor<Void, List<VisibleJourney>> retrieveJourneysInteractor) {
+    JourneysViewModel(@NonNull @AllJourneys RetrieveInteractor<Void, List<VisibleJourney>> retrieveJourneysInteractor) {
         this.compositeDisposable = new CompositeDisposable();
         this.retrieveJourneysInteractor = retrieveJourneysInteractor;
 
