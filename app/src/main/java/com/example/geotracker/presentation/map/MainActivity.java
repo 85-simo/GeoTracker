@@ -9,16 +9,23 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.content.res.AppCompatResources;
+import android.text.TextUtils;
+import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.geotracker.R;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
+import com.example.geotracker.presentation.journeys.fragments.JourneysFragment;
+import com.example.geotracker.presentation.map.events.ActivityEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.presentation.map.fragments.MapFragment;
@@ -58,11 +65,21 @@ public class MainActivity extends BaseFragmentActivity {
                 .observe(this, new TrackingStateChangesObserver(this));
         this.viewModel.getObservableMapEventStream()
                 .observe(this, new MapEventsStreamObserver(this));
+        this.viewModel.getObservableActivityEventStream()
+                .observe(this, new ActivityEventsStreamObserver(this));
         MapFragment mapFragment = MapFragment.newInstance();
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.main_activity_content_fl, mapFragment, MapFragment.TAG)
                 .commit();
+        this.mainActivityBnv.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                boolean wasChecked = item.isChecked();
+                MainActivity.this.viewModel.onTabSelected(item.getItemId(), wasChecked);
+                return true;
+            }
+        });
     }
 
     @Override
@@ -174,6 +191,44 @@ public class MainActivity extends BaseFragmentActivity {
                                     .show();
                             break;
                     }
+                }
+            }
+        }
+    }
+
+    private static class ActivityEventsStreamObserver implements Observer<ActivityEvent> {
+        private WeakReference<MainActivity> activityWeakReference;
+
+        ActivityEventsStreamObserver(@NonNull MainActivity mainActivity) {
+            this.activityWeakReference = new WeakReference<>(mainActivity);
+        }
+
+        @Override
+        public void onChanged(@Nullable ActivityEvent activityEvent) {
+            MainActivity mainActivity = this.activityWeakReference.get();
+            if (activityEvent != null && mainActivity != null)  {
+                switch (activityEvent.getType()) {
+                    case TYPE_TAB_SELECTED:
+                        ActivityEvent.TabType selectedTab = activityEvent.getTabType();
+                        Fragment fragment = null;
+                        String transactionTag = null;
+                        switch (selectedTab) {
+                            case TAB_TYPE_MAP:
+                                fragment = MapFragment.newInstance();
+                                transactionTag = MapFragment.TAG;
+                                break;
+                            case TAB_TYPE_JOURNEYS:
+                                fragment = JourneysFragment.newInstance();
+                                transactionTag = JourneysFragment.TAG;
+                                break;
+                        }
+                        if (!TextUtils.isEmpty(transactionTag) && fragment != null) {
+                            mainActivity.getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.main_activity_content_fl, fragment, transactionTag)
+                                    .commit();
+                        }
+                        break;
                 }
             }
         }
