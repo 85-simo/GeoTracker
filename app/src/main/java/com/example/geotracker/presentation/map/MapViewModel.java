@@ -3,6 +3,7 @@ package com.example.geotracker.presentation.map;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -13,6 +14,7 @@ import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
 import com.example.geotracker.presentation.PerActivity;
+import com.example.geotracker.presentation.map.events.ActivityEvent;
 import com.example.geotracker.presentation.map.events.PathEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
@@ -52,6 +54,8 @@ public class MapViewModel extends ViewModel {
     private MutableLiveData<MapEvent> mapEventsObservableStream;
     @NonNull
     private MutableLiveData<PathEvent> journeyEventsObservableStream;
+    @NonNull
+    private MutableLiveData<ActivityEvent> activityEventsObservableStream;
 
     @NonNull
     private CompositeDisposable compositeDisposable;
@@ -71,6 +75,7 @@ public class MapViewModel extends ViewModel {
         this.trackingStateStreamEvent = new MutableLiveData<>();
         this.mapEventsObservableStream = new SingleLiveEvent<>();
         this.journeyEventsObservableStream = new MutableLiveData<>();
+        this.activityEventsObservableStream = new SingleLiveEvent<>();
 
         this.compositeDisposable = new CompositeDisposable();
 
@@ -99,6 +104,10 @@ public class MapViewModel extends ViewModel {
         return this.journeyEventsObservableStream;
     }
 
+    public LiveData<ActivityEvent> getObservableActivityEventStream() {
+        return this.activityEventsObservableStream;
+    }
+
 
     public void requestPermissions(String... requiredPermissions) {
         Schedulers.computation().scheduleDirect(() -> {
@@ -109,6 +118,27 @@ public class MapViewModel extends ViewModel {
 
     public void onPermissionsGranted() {
         Schedulers.computation().scheduleDirect(() -> MapViewModel.this.permissionGrantLiveEvent.postValue(null));
+    }
+
+    public void onTabSelected(@IdRes int selectedTabId, boolean itemAlreadyChecked) {
+        Schedulers.computation().scheduleDirect(new Runnable() {
+            @Override
+            public void run() {
+                if (!itemAlreadyChecked) {
+                    ActivityEvent.TabType selectedTabType = null;
+                    if (selectedTabId == R.id.item_map) {
+                        selectedTabType = ActivityEvent.TabType.TAB_TYPE_MAP;
+                    }
+                    else if (selectedTabId == R.id.item_list) {
+                        selectedTabType = ActivityEvent.TabType.TAB_TYPE_JOURNEYS;
+                    }
+                    if (selectedTabType != null) {
+                        ActivityEvent activityEvent = new ActivityEvent(ActivityEvent.Type.TYPE_TAB_SELECTED, selectedTabType);
+                        MapViewModel.this.activityEventsObservableStream.postValue(activityEvent);
+                    }
+                }
+            }
+        });
     }
 
     public void onTrackingButtonClicked() {
