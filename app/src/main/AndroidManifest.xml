@@ -37,7 +37,8 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".presentation.details.JourneyDetailsActivity"></activity>
+        <activity android:name=".presentation.details.JourneyDetailsActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -85,13 +85,10 @@ public class MainActivity extends BaseFragmentActivity {
                 .observe(this, new ActivityEventsStreamObserver(this));
         this.viewModel.getObservableNavigationEventsStream()
                 .observe(this, new NavigationEventsStreamObserver(this));
-        this.mainActivityBnv.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                boolean wasChecked = item.isChecked();
-                MainActivity.this.viewModel.onTabSelected(item.getItemId(), wasChecked);
-                return true;
-            }
+        this.mainActivityBnv.setOnNavigationItemSelectedListener(item -> {
+            boolean wasChecked = item.isChecked();
+            MainActivity.this.viewModel.onTabSelected(item.getItemId(), wasChecked);
+            return true;
         });
         selectTab(R.id.item_map);
         this.mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);

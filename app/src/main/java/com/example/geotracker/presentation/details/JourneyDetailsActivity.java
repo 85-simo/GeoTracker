@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.example.geotracker.R;
@@ -65,10 +67,13 @@ public class JourneyDetailsActivity extends BaseActivity {
     @BindView(R.id.view_journey_info_cv)
     CardView viewJourneyInfoCv;
     @BindDimen(R.dimen.location_marker_size)
-    int locationMarkerSize;
+    int locationMarkerSizePx;
     @BindColor(R.color.colorPrimary)
     @ColorInt
     int colorPrimary;
+    @BindDimen(R.dimen.journey_info_bottom_sheet_peek_height)
+    int bottomSheetPeekHeightPx;
+    int toolbarHeightPx;
 
     private JourneyDetailsViewModel viewModel;
     @Nullable
@@ -92,6 +97,9 @@ public class JourneyDetailsActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle(R.string.journey_details_title);
         }
+        final TypedArray styledAttributes = getTheme().obtainStyledAttributes(new int[] { android.R.attr.actionBarSize });
+        this.toolbarHeightPx = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
         BottomSheetBehavior.from(viewJourneyInfoCv);
         if (savedInstanceState == null) {
             GoogleMapOptions options = new GoogleMapOptions()
@@ -149,6 +157,7 @@ public class JourneyDetailsActivity extends BaseActivity {
             JourneyDetailsActivity activity = this.activityWeakReference.get();
             if (activity != null) {
                 activity.googleMap = googleMap;
+                activity.googleMap.setPadding(0, activity.toolbarHeightPx, 0, activity.bottomSheetPeekHeightPx);
                 activity.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
                 activity.mapPreparing = false;
                 activity.viewModel.getJourneyPathObervableStream()
@@ -238,7 +247,7 @@ public class JourneyDetailsActivity extends BaseActivity {
                             Drawable startLocationDrawable = DrawableUtils.getTintedDrawable(activity.getApplicationContext(), R.drawable.ic_start, activity.colorPrimary);
                             Drawable endLocationDrawable = DrawableUtils.getTintedDrawable(activity.getApplicationContext(), R.drawable.ic_end, activity.colorPrimary);
                             if (startLocationDrawable != null) {
-                                Bitmap startLocationtBitmap = DrawableUtils.setDrawableHeightWithKeepRatio(startLocationDrawable, activity.locationMarkerSize);
+                                Bitmap startLocationtBitmap = DrawableUtils.setDrawableHeightWithKeepRatio(startLocationDrawable, activity.locationMarkerSizePx);
                                 MarkerOptions startLocationMarkerOptions = new MarkerOptions()
                                         .position(startLocation)
                                         .icon(BitmapDescriptorFactory.fromBitmap(startLocationtBitmap))
@@ -246,7 +255,7 @@ public class JourneyDetailsActivity extends BaseActivity {
                                 activity.startLocationMarker = activity.googleMap.addMarker(startLocationMarkerOptions);
                             }
                             if (endLocationDrawable != null) {
-                                Bitmap endLocationtBitmap = DrawableUtils.setDrawableHeightWithKeepRatio(endLocationDrawable, activity.locationMarkerSize);
+                                Bitmap endLocationtBitmap = DrawableUtils.setDrawableHeightWithKeepRatio(endLocationDrawable, activity.locationMarkerSizePx);
                                 MarkerOptions startLocationMarkerOptions = new MarkerOptions()
                                         .position(endLocation)
                                         .icon(BitmapDescriptorFactory.fromBitmap(endLocationtBitmap))
