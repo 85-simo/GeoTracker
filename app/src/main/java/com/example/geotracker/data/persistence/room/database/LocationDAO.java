@@ -54,7 +54,7 @@ public abstract class LocationDAO {
         }
     }
 
-    @Query("SELECT * FROM locations WHERE journey_id = :journeyId ORDER BY locations.timestamp DESC")
+    @Query("SELECT * FROM locations WHERE journey_id = :journeyId ORDER BY locations.timestamp ASC")
     public abstract Flowable<List<Location>> getSortedLocationsByJourneyIdFlowable(long journeyId);
 
     @Query("SELECT * FROM locations WHERE id = :id")

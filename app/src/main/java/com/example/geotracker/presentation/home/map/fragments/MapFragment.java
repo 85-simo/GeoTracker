@@ -8,7 +8,10 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +28,7 @@ import com.example.geotracker.presentation.base.BaseFragmentActivity;
 import com.example.geotracker.presentation.home.MainViewModel;
 import com.example.geotracker.presentation.home.map.events.LocationUpdateEvent;
 import com.example.geotracker.presentation.map.events.PathEvent;
+import com.example.geotracker.utils.DrawableUtils;
 import com.example.geotracker.utils.PermissionsUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -33,14 +37,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.example.geotracker.presentation.map.events.MapEvent;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
@@ -57,10 +68,17 @@ public class MapFragment extends BaseFragment {
     @Inject
     @ApplicationContext
     Context applicationContext;
+    @BindDimen(R.dimen.location_marker_size)
+    int locationMarkerSize;
+    @BindColor(R.color.colorPrimary)
+    @ColorInt
+    int colorPrimary;
     Unbinder unbinder;
 
     private MainViewModel mainViewModel;
     private Polyline pathPolyline;
+    private Marker startLocationMarker;
+    private Marker endLocationMarker;
 
     @Nullable
     private GoogleMap googleMap;
@@ -251,7 +269,29 @@ public class MapFragment extends BaseFragment {
                     PolylineOptions options = pathEvent.getPathPolylineOptions()
                             .width(POLYLINE_WIDTH)
                             .color(ContextCompat.getColor(mapFragment.applicationContext, R.color.colorAccent));
+                    List<LatLng> positions = options.getPoints();
+                    LatLng startingPoint = null;
+                    if (!positions.isEmpty()) {
+                        startingPoint = positions.get(positions.size() - 1);
+                    }
+                    MarkerOptions startLocationMarkerOptions = null;
+                    if (startingPoint != null) {
+                        Drawable startingPointDrawable = DrawableUtils.getTintedDrawable(mapFragment.applicationContext, R.drawable.ic_start, mapFragment.colorPrimary);
+                        if (startingPointDrawable != null) {
+                            Bitmap startingPointBitmap = DrawableUtils.setDrawableHeightWithKeepRatio(startingPointDrawable, mapFragment.locationMarkerSize);
+                            startLocationMarkerOptions = new MarkerOptions()
+                                    .position(startingPoint)
+                                    .anchor(0.5f, 1.0f)
+                                    .icon(BitmapDescriptorFactory.fromBitmap(startingPointBitmap));
+                            if (mapFragment.startLocationMarker != null) {
+                                mapFragment.startLocationMarker.remove();
+                            }
+                        }
+                    }
                     if (mapFragment.googleMap != null) {
+                        if (startLocationMarkerOptions != null) {
+                            mapFragment.startLocationMarker = mapFragment.googleMap.addMarker(startLocationMarkerOptions);
+                        }
                         mapFragment.pathPolyline = mapFragment.googleMap.addPolyline(options);
                     }
                 }
