@@ -15,4 +15,5 @@
     <dimen name="journey_info_layout_title_text_size">19sp</dimen>
     <dimen name="journey_info_layout_desc_text_size">15sp</dimen>
     <dimen name="location_marker_size">50dp</dimen>
+    <dimen name="journey_info_bottom_sheet_peek_height">60dp</dimen>
 </resources>

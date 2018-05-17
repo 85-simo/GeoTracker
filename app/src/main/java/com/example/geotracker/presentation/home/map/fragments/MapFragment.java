@@ -272,7 +272,7 @@ public class MapFragment extends BaseFragment {
                     List<LatLng> positions = options.getPoints();
                     LatLng startingPoint = null;
                     if (!positions.isEmpty()) {
-                        startingPoint = positions.get(positions.size() - 1);
+                        startingPoint = positions.get(0);
                     }
                     MarkerOptions startLocationMarkerOptions = null;
                     if (startingPoint != null) {

@@ -13,7 +13,7 @@
     android:clickable="true"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    app:behavior_peekHeight="60dp"
+    app:behavior_peekHeight="@dimen/journey_info_bottom_sheet_peek_height"
     app:cardBackgroundColor="@android:color/white">
     <android.support.constraint.ConstraintLayout
         android:id="@+id/view_journey_info_cl"
