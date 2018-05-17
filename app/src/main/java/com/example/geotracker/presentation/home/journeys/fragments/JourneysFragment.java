@@ -26,8 +26,8 @@ import com.example.geotracker.presentation.base.BaseFragment;
 import com.example.geotracker.presentation.base.BaseFragmentActivity;
 import com.example.geotracker.presentation.home.MainViewModel;
 import com.example.geotracker.presentation.home.journeys.JourneysViewModel;
+import com.example.geotracker.presentation.home.journeys.adapters.JourneyRecyclerAdapter;
 import com.example.geotracker.presentation.journeys.adapters.JourneyClickListener;
-import com.example.geotracker.presentation.journeys.adapters.JourneyRecyclerAdapter;
 import com.example.geotracker.presentation.journeys.adapters.datamodel.JourneyItem;
 import com.example.geotracker.presentation.journeys.events.JourneysEvent;
 
@@ -148,8 +148,8 @@ public class JourneysFragment extends BaseFragment {
     private class JourneyItemClickListener implements JourneyClickListener {
 
         @Override
-        public void onJourneyItemClicked(long clickedItemId) {
-            JourneysFragment.this.mainViewModel.onJourneyItemClicked(clickedItemId);
+        public void onJourneyItemClicked(long clickedItemId, boolean isActive) {
+            JourneysFragment.this.mainViewModel.onJourneyItemClicked(clickedItemId, isActive);
         }
     }
 }
