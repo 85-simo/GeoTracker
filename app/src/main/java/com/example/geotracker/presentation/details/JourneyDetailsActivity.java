@@ -4,7 +4,10 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
@@ -19,17 +22,25 @@ import com.example.geotracker.presentation.details.events.JourneyDetailsInfoEven
 import com.example.geotracker.presentation.details.events.JourneyDetailsPathEvent;
 import com.example.geotracker.utils.DateTimeUtils;
 import com.example.geotracker.utils.DistanceUtils;
+import com.example.geotracker.utils.DrawableUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -52,8 +63,12 @@ public class JourneyDetailsActivity extends BaseActivity {
     TextView viewJourneyInfoDistanceTv;
     @BindView(R.id.view_journey_info_cl)
     ConstraintLayout viewJourneyInfoCl;
+    @BindDimen(R.dimen.location_marker_size)
+    int locationMarkerSize;
+    @BindColor(R.color.colorPrimary)
+    @ColorInt
+    int colorPrimary;
 
-    private BottomSheetBehavior bottomSheetBehavior;
     private JourneyDetailsViewModel viewModel;
     @Nullable
     private SupportMapFragment mapFragment;
@@ -61,8 +76,9 @@ public class JourneyDetailsActivity extends BaseActivity {
     private GoogleMap googleMap;
 
     private boolean mapPreparing = false;
-    private boolean firstMapZoomExecuted = false;
     private Polyline mapPolyline;
+    private Marker startLocationMarker;
+    private Marker endLocationMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +91,7 @@ public class JourneyDetailsActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle(R.string.journey_details_title);
         }
-        this.bottomSheetBehavior = BottomSheetBehavior.from(viewJourneyInfoCl);
+        BottomSheetBehavior.from(viewJourneyInfoCl);
         if (savedInstanceState == null) {
             GoogleMapOptions options = new GoogleMapOptions()
                     .mapToolbarEnabled(false)
@@ -204,12 +220,41 @@ public class JourneyDetailsActivity extends BaseActivity {
                     if (activity.mapPolyline != null) {
                         activity.mapPolyline.remove();
                     }
+                    if (activity.startLocationMarker != null) {
+                        activity.startLocationMarker.remove();
+                    }
+                    if (activity.endLocationMarker != null) {
+                        activity.endLocationMarker.remove();
+                    }
                     if (activity.googleMap != null) {
-                        activity.mapPolyline = activity.googleMap.addPolyline(journeyDetailsPathEvent.getPathPolylineOptions()
-                                .width(POLYLINE_WIDTH)
-                                .color(ContextCompat.getColor(activity.getApplicationContext(), R.color.colorAccent)));
+                        List<LatLng> locationSequence = journeyDetailsPathEvent.getPathPolylineOptions().getPoints();
+                        if (!locationSequence.isEmpty()) {
+                            activity.mapPolyline = activity.googleMap.addPolyline(journeyDetailsPathEvent.getPathPolylineOptions()
+                                    .width(POLYLINE_WIDTH)
+                                    .color(ContextCompat.getColor(activity.getApplicationContext(), R.color.colorAccent)));
+                            LatLng startLocation = locationSequence.get(0);
+                            LatLng endLocation = locationSequence.get(locationSequence.size() - 1);
+                            Drawable startLocationDrawable = DrawableUtils.getTintedDrawable(activity.getApplicationContext(), R.drawable.ic_start, activity.colorPrimary);
+                            Drawable endLocationDrawable = DrawableUtils.getTintedDrawable(activity.getApplicationContext(), R.drawable.ic_end, activity.colorPrimary);
+                            if (startLocationDrawable != null) {
+                                Bitmap startLocationtBitmap = DrawableUtils.setDrawableHeightWithKeepRatio(startLocationDrawable, activity.locationMarkerSize);
+                                MarkerOptions startLocationMarkerOptions = new MarkerOptions()
+                                        .position(startLocation)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(startLocationtBitmap))
+                                        .anchor(0.5f, 1.0f);
+                                activity.startLocationMarker = activity.googleMap.addMarker(startLocationMarkerOptions);
+                            }
+                            if (endLocationDrawable != null) {
+                                Bitmap endLocationtBitmap = DrawableUtils.setDrawableHeightWithKeepRatio(endLocationDrawable, activity.locationMarkerSize);
+                                MarkerOptions startLocationMarkerOptions = new MarkerOptions()
+                                        .position(endLocation)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(endLocationtBitmap))
+                                        .anchor(0.0f, 1.0f);
+                                activity.endLocationMarker = activity.googleMap.addMarker(startLocationMarkerOptions);
+                            }
 
-                        activity.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(journeyDetailsPathEvent.getPathBoundingBox(), 60));
+                            activity.googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(journeyDetailsPathEvent.getPathBoundingBox(), 100));
+                        }
                     }
                 }
             }
