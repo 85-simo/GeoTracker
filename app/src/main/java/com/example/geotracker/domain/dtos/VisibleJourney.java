@@ -8,13 +8,15 @@ public class VisibleJourney {
     private final String startedAtUTCDateTimeIso;
     private final String completedAtUTCDateTimeIso;
     private final String title;
+    private final String encodedPath;
 
-    public VisibleJourney(long identifier, boolean complete, String startedAtUTCDateTimeIso, String completedAtUTCDateTimeIso, String title) {
+    public VisibleJourney(long identifier, boolean complete, String startedAtUTCDateTimeIso, String completedAtUTCDateTimeIso, String title, String encodedPath) {
         this.identifier = identifier;
         this.complete = complete;
         this.startedAtUTCDateTimeIso = startedAtUTCDateTimeIso;
         this.completedAtUTCDateTimeIso = completedAtUTCDateTimeIso;
         this.title = title;
+        this.encodedPath = encodedPath;
     }
 
     public long getIdentifier() {
@@ -37,6 +39,10 @@ public class VisibleJourney {
         return title;
     }
 
+    public String getEncodedPath() {
+        return encodedPath;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -50,7 +56,9 @@ public class VisibleJourney {
             return false;
         if (getCompletedAtUTCDateTimeIso() != null ? !getCompletedAtUTCDateTimeIso().equals(that.getCompletedAtUTCDateTimeIso()) : that.getCompletedAtUTCDateTimeIso() != null)
             return false;
-        return getTitle() != null ? getTitle().equals(that.getTitle()) : that.getTitle() == null;
+        if (getTitle() != null ? !getTitle().equals(that.getTitle()) : that.getTitle() != null)
+            return false;
+        return getEncodedPath() != null ? getEncodedPath().equals(that.getEncodedPath()) : that.getEncodedPath() == null;
     }
 
     @Override
@@ -60,6 +68,7 @@ public class VisibleJourney {
         result = 31 * result + (getStartedAtUTCDateTimeIso() != null ? getStartedAtUTCDateTimeIso().hashCode() : 0);
         result = 31 * result + (getCompletedAtUTCDateTimeIso() != null ? getCompletedAtUTCDateTimeIso().hashCode() : 0);
         result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
+        result = 31 * result + (getEncodedPath() != null ? getEncodedPath().hashCode() : 0);
         return result;
     }
 }

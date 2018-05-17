@@ -1,6 +1,5 @@
 package com.example.geotracker.utils;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;

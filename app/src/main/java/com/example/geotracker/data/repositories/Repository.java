@@ -1,7 +1,6 @@
 package com.example.geotracker.data.repositories;
 
 import com.example.geotracker.data.dtos.RestrictedJourney;
-import com.example.geotracker.data.dtos.RestrictedLocation;
 
 import java.util.List;
 
@@ -13,11 +12,8 @@ public interface Repository {
     Single<List<RestrictedJourney>> getJourneysOneShot();
     Single<Boolean> getSingleTrackingState();
     Flowable<List<RestrictedJourney>> getRefreshingJourneys();
-    Flowable<List<RestrictedLocation>> getRefreshingLocationsByJourneyId(long journeyId);
     Flowable<RestrictedJourney> getRefreshingJourneyById(long journeyId);
     Flowable<Boolean> getRefreshingTrackingState();
-    Completable addLocationToJourney(RestrictedLocation location, long journeyIdentifier);
-    Completable addLocationsToJourney(List<RestrictedLocation> locations, long journeyIdentifier);
     Completable insertOrUpdateJourney(RestrictedJourney journey);
     Completable setTrackingState(boolean trackingState);
 }

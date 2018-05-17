@@ -11,19 +11,22 @@ import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.geotracker.R;
+import com.example.geotracker.domain.base.GetInteractor;
 import com.example.geotracker.domain.base.PersistInteractor;
-import com.example.geotracker.domain.dtos.VisibleLocation;
+import com.example.geotracker.domain.dtos.VisibleJourney;
 import com.example.geotracker.presentation.base.BaseService;
 import com.example.geotracker.presentation.home.MainActivity;
-import com.example.geotracker.utils.DateTimeUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.PolyUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 
 public class TrackingService extends BaseService {
@@ -38,7 +42,9 @@ public class TrackingService extends BaseService {
     private static final int TRACKING_NOTIFICATION_ID = 31141;
 
     @Inject
-    PersistInteractor<Void, List<VisibleLocation>> visibleLocationsPersistInteractor;
+    GetInteractor<Void, List<VisibleJourney>> getActiveJourneyInteractor;
+    @Inject
+    PersistInteractor<Void, VisibleJourney> persistJourneyInteractor;
 
     private boolean serviceRunning = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -119,18 +125,47 @@ public class TrackingService extends BaseService {
             Schedulers.computation().scheduleDirect(() -> {
                 if (locationResult != null) {
                     List<Location> locations = locationResult.getLocations();
-                    List<VisibleLocation> visibleLocations = new ArrayList<>(locations.size());
-                    for (Location location : locations) {
-                        String recordedAtIso = DateTimeUtils.utcMillisToDateTimeIsoString(System.currentTimeMillis());
-                        VisibleLocation visibleLocation = new VisibleLocation(VisibleLocation.GENERATE_NEW_IDENTIFIER,
-                                location.getLatitude(),
-                                location.getLongitude(),
-                                recordedAtIso);
-                        visibleLocations.add(visibleLocation);
+                    List<LatLng> locationsSequence = null;
+                    if (!locations.isEmpty()) {
+                        locationsSequence = new ArrayList<>(locations.size());
+                        for (Location location : locations) {
+                            locationsSequence.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                        }
                     }
-                    TrackingService.this.visibleLocationsPersistInteractor
-                            .persist(null, visibleLocations)
-                            .subscribe();
+                    if (locationsSequence != null) {
+                        List<LatLng> finalLocationsSequence = locationsSequence;
+                        TrackingService.this.getActiveJourneyInteractor
+                            .get(null)
+                            .flatMapCompletable(visibleJourneys -> {
+                                if (!visibleJourneys.isEmpty()) {
+                                    VisibleJourney activeJourney = visibleJourneys.get(0);
+                                    String previousEncodedPath = activeJourney.getEncodedPath();
+                                    List<LatLng> simplifiedNewLocations = PolyUtil.simplify(finalLocationsSequence, 50);
+                                    List<LatLng> aggregatedLocationsSequence = null;
+                                    if (!TextUtils.isEmpty(previousEncodedPath)) {
+                                        List<LatLng> previousLocationsSequence = PolyUtil.decode(previousEncodedPath);
+                                        aggregatedLocationsSequence = new ArrayList<>(previousLocationsSequence.size() + simplifiedNewLocations.size());
+                                        aggregatedLocationsSequence.addAll(previousLocationsSequence);
+                                    }
+                                    if (aggregatedLocationsSequence == null) {
+                                        aggregatedLocationsSequence = new ArrayList<>();
+                                    }
+                                    aggregatedLocationsSequence.addAll(simplifiedNewLocations);
+                                    String newEncodedPath = PolyUtil.encode(aggregatedLocationsSequence);
+                                    VisibleJourney visibleJourney = new VisibleJourney(activeJourney.getIdentifier(),
+                                            activeJourney.isComplete(),
+                                            activeJourney.getStartedAtUTCDateTimeIso(),
+                                            activeJourney.getCompletedAtUTCDateTimeIso(),
+                                            activeJourney.getTitle(),
+                                            newEncodedPath);
+                                    return TrackingService.this.persistJourneyInteractor
+                                            .persist(null, visibleJourney);
+                                }
+                                else {
+                                    return Completable.complete();
+                                }
+                            }).subscribe();
+                    }
                 }
             });
         }
