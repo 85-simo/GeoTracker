@@ -71,6 +71,8 @@ public class JourneyDetailsActivity extends BaseActivity {
     TextView viewJourneyInfoDistanceTv;
     @BindView(R.id.view_journey_info_cv)
     CardView viewJourneyInfoCv;
+    @BindView(R.id.view_journey_info_average_speed_tv)
+    TextView averageSpeedTv;
     @BindDimen(R.dimen.location_marker_size)
     int locationMarkerSizePx;
     @BindColor(R.color.colorPrimary)
@@ -211,10 +213,13 @@ public class JourneyDetailsActivity extends BaseActivity {
                     }
                     String startedAtString = activity.getString(R.string.journey_details_info_start_datetime, journeyDetailsInfoEvent.getStartedAt());
                     String completedAtString = activity.getString(R.string.journey_details_info_end_datetime, journeyDetailsInfoEvent.getCompletedAt());
+                    double averageSpeedKph = journeyDetailsInfoEvent.getAverageSpeedKph();
+                    String averageSpeedString = activity.getString(R.string.journey_details_average_speed, averageSpeedKph);
                     activity.viewJourneyInfoTotalDurationTv.setText(visibleDurationString);
                     activity.viewJourneyInfoStartedAtTv.setText(startedAtString);
                     activity.viewJourneyInfoEndedAtTv.setText(completedAtString);
                     activity.viewJourneyInfoDistanceTv.setText(pathLengthString);
+                    activity.averageSpeedTv.setText(averageSpeedString);
                 }
             }
         }

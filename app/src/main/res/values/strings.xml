@@ -18,4 +18,5 @@
     <string name="duration_hours_suffix">h</string>
     <string name="duration_minutes_suffix">m</string>
     <string name="duration_seconds_suffix">s</string>
+    <string name="journey_details_average_speed">Average speed: %1$.02f kph</string>
 </resources>

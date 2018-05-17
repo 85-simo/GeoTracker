@@ -68,7 +68,21 @@
             app:layout_constraintVertical_chainStyle="packed"
             android:layout_marginTop="3dp"
             app:layout_constrainedHeight="true"
+            android:textSize="@dimen/journey_info_layout_desc_text_size"
+            android:ellipsize="end"
             app:layout_constrainedWidth="true"
             tools:text="Total distance covered : 45 km"/>
+        <TextView android:id="@+id/view_journey_info_average_speed_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_journey_info_distance_tv"
+            app:layout_constraintVertical_chainStyle="packed"
+            android:layout_marginTop="3dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constrainedWidth="true"
+            android:textSize="@dimen/journey_info_layout_desc_text_size"
+            android:ellipsize="end"
+            tools:text="Average speed: 55 km/h"/>
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>

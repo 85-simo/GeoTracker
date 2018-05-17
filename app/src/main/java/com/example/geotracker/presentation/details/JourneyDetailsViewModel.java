@@ -18,6 +18,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -74,7 +75,15 @@ public class JourneyDetailsViewModel extends ViewModel {
                     String startedAtHumanReadable = DateTimeUtils.isoUTCDateTimeStringToHumanReadable(visibleJourney.getStartedAtUTCDateTimeIso());
                     String completedAtHumanReadable = DateTimeUtils.isoUTCDateTimeStringToHumanReadable(visibleJourney.getCompletedAtUTCDateTimeIso());
                     long pathDuration = DateTimeUtils.millisBetween(visibleJourney.getStartedAtUTCDateTimeIso(), visibleJourney.getCompletedAtUTCDateTimeIso());
-                    JourneyDetailsInfoEvent journeyDetailsInfoEvent = new JourneyDetailsInfoEvent(visibleJourney.getTitle(), startedAtHumanReadable, completedAtHumanReadable, pathDuration, totalDistance);
+                    long pathDurationSecs = TimeUnit.MILLISECONDS.toSeconds(pathDuration);
+                    double averageSpeedMps = totalDistance /(double)pathDurationSecs;
+                    double averageSpeedKph = averageSpeedMps * 3.6d;
+                    JourneyDetailsInfoEvent journeyDetailsInfoEvent = new JourneyDetailsInfoEvent(visibleJourney.getTitle(),
+                            startedAtHumanReadable,
+                            completedAtHumanReadable,
+                            pathDuration,
+                            totalDistance,
+                            averageSpeedKph);
                     JourneyDetailsPathEvent journeyDetailsPathEvent = null;
                     if (decodedPath != null) {
                         PolylineOptions polylineOptions = new PolylineOptions()

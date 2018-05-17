@@ -4,20 +4,22 @@ import android.support.annotation.NonNull;
 
 public class JourneyDetailsInfoEvent {
     @NonNull
-    private String journeyTitle;
+    private final String journeyTitle;
     @NonNull
-    private String startedAt;
+    private final String startedAt;
     @NonNull
-    private String completedAt;
-    private long durationMillis;
-    private double totalDistanceMeters;
+    private final String completedAt;
+    private final long durationMillis;
+    private final double totalDistanceMeters;
+    private final double averageSpeedKph;
 
-    public JourneyDetailsInfoEvent(@NonNull String journeyTitle, @NonNull String startedAt, @NonNull String completedAt, long durationMillis, double totalDistanceMeters) {
+    public JourneyDetailsInfoEvent(@NonNull String journeyTitle, @NonNull String startedAt, @NonNull String completedAt, long durationMillis, double totalDistanceMeters, double averageSpeedKph) {
         this.journeyTitle = journeyTitle;
         this.startedAt = startedAt;
         this.completedAt = completedAt;
         this.durationMillis = durationMillis;
         this.totalDistanceMeters = totalDistanceMeters;
+        this.averageSpeedKph = averageSpeedKph;
     }
 
     @NonNull
@@ -43,6 +45,10 @@ public class JourneyDetailsInfoEvent {
         return totalDistanceMeters;
     }
 
+    public double getAverageSpeedKph() {
+        return averageSpeedKph;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,6 +59,7 @@ public class JourneyDetailsInfoEvent {
         if (getDurationMillis() != that.getDurationMillis()) return false;
         if (Double.compare(that.getTotalDistanceMeters(), getTotalDistanceMeters()) != 0)
             return false;
+        if (Double.compare(that.getAverageSpeedKph(), getAverageSpeedKph()) != 0) return false;
         if (!getJourneyTitle().equals(that.getJourneyTitle())) return false;
         if (!getStartedAt().equals(that.getStartedAt())) return false;
         return getCompletedAt().equals(that.getCompletedAt());
@@ -67,6 +74,8 @@ public class JourneyDetailsInfoEvent {
         result = 31 * result + getCompletedAt().hashCode();
         result = 31 * result + (int) (getDurationMillis() ^ (getDurationMillis() >>> 32));
         temp = Double.doubleToLongBits(getTotalDistanceMeters());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(getAverageSpeedKph());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
