@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -61,8 +62,8 @@ public class JourneyDetailsActivity extends BaseActivity {
     TextView viewJourneyInfoEndedAtTv;
     @BindView(R.id.view_journey_info_distance_tv)
     TextView viewJourneyInfoDistanceTv;
-    @BindView(R.id.view_journey_info_cl)
-    ConstraintLayout viewJourneyInfoCl;
+    @BindView(R.id.view_journey_info_cv)
+    CardView viewJourneyInfoCv;
     @BindDimen(R.dimen.location_marker_size)
     int locationMarkerSize;
     @BindColor(R.color.colorPrimary)
@@ -91,7 +92,7 @@ public class JourneyDetailsActivity extends BaseActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle(R.string.journey_details_title);
         }
-        BottomSheetBehavior.from(viewJourneyInfoCl);
+        BottomSheetBehavior.from(viewJourneyInfoCv);
         if (savedInstanceState == null) {
             GoogleMapOptions options = new GoogleMapOptions()
                     .mapToolbarEnabled(false)
