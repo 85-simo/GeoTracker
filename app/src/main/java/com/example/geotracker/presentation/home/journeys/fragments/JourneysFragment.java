@@ -41,6 +41,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
+/**
+ * Simple {@link android.support.v4.app.Fragment} implementation meant to provide the user with a visual representation of currently and previously recorded
+ * journeys. Such representation is provided through the usage of a {@link RecyclerView}, constructed as a grid. Each item displays both a journey's
+ * name and its start datetime in a user-readable way.
+ * This fragment uses both its specific viewmodel implementation {@link JourneysViewModel} and a {@link MainViewModel}. As such, it's able to listen to MainActivity
+ * specific events, as well as keeping it's own events' subset separate from the rest of the Views, thus reducing the complexity of ViewModel classes.
+ */
 public class JourneysFragment extends BaseFragment {
     public static final String TAG = JourneysFragment.class.getCanonicalName() + ".TAG";
     private static final int GRID_SPANS_COUNT = 2;

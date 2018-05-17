@@ -7,6 +7,9 @@ import javax.inject.Inject;
 
 import io.reactivex.functions.Function;
 
+/**
+ * Same as {@link RestrictedToVisibleJourneysMapper} but deals with single objects only.
+ */
 class SingleRestrictedToVisibleJourneyMapper implements Function<RestrictedJourney, VisibleJourney> {
 
     @Inject

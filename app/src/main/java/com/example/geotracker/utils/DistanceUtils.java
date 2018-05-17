@@ -5,6 +5,9 @@ import com.google.maps.android.SphericalUtil;
 
 import java.util.List;
 
+/**
+ * Simple class used for simple distance-related operations.
+ */
 public class DistanceUtils {
     public static final int METERS_IN_A_KILOMETER = 1000;
 

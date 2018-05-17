@@ -9,7 +9,7 @@ import com.example.geotracker.domain.base.PersistInteractor;
 import javax.inject.Inject;
 
 import io.reactivex.Completable;
-
+@Deprecated
 class TrackingStateInversionInteractor implements BooleanInversionInteractor<Void> {
     @NonNull
     private PersistInteractor<Void, Boolean> trackingStatePersistInteractor;

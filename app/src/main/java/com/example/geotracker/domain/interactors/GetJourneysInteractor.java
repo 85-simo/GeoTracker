@@ -15,6 +15,9 @@ import javax.inject.Inject;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
+/**
+ * Same as {@link GetActiveJourneyInteractor} but does not remove any result from the retrieved set of journeys.
+ */
 class GetJourneysInteractor implements GetInteractor<Void, List<VisibleJourney>> {
     @NonNull
     private Repository repository;

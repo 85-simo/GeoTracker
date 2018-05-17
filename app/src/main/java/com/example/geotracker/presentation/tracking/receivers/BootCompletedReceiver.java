@@ -7,6 +7,10 @@ import android.os.Build;
 
 import com.example.geotracker.presentation.tracking.TrackingService;
 
+/**
+ * {@link BroadcastReceiver} implementation used for starting the {@link TrackingService} whenever the user reboots its device.
+ * This component is supposed to be active if and only if there is one journey in the active state.
+ */
 public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override

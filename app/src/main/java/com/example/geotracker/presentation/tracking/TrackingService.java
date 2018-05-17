@@ -37,7 +37,14 @@ import javax.inject.Inject;
 import io.reactivex.Completable;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * Service implementation, compliant with Oreo restrictions which is in charge of receiving user's location updates and persisting them into the active journey's entity.
+ * It does so by two interaction interfaces: whenever it receives a location update, it combines the usage of the two interactors its been given and combines them in order to
+ * retrieve the active journey's instance, decode the previously stored path, simplify the current set of received locations, append the new locations to the previously recorded path, re-encode the result
+ * and finally persist it.
+ */
 public class TrackingService extends BaseService {
+    private static final int SIMPLIFICATION_TOLERANCE_METERS = 50;
     private static final String TRACKING_NOTIFICATION_CHANNEL_ID = TrackingService.class.getCanonicalName() + ".TRACKING_NOTIFICATION_CHANNEL_ID";
     private static final int TRACKING_NOTIFICATION_ID = 31141;
 
@@ -119,6 +126,9 @@ public class TrackingService extends BaseService {
         super.onDestroy();
     }
 
+    /**
+     * Class implementing the whole retrieval-decode-simplify-append-encode-store process.
+     */
     private class LocationUpdateCallback extends LocationCallback {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -140,7 +150,7 @@ public class TrackingService extends BaseService {
                                 if (!visibleJourneys.isEmpty()) {
                                     VisibleJourney activeJourney = visibleJourneys.get(0);
                                     String previousEncodedPath = activeJourney.getEncodedPath();
-                                    List<LatLng> simplifiedNewLocations = PolyUtil.simplify(finalLocationsSequence, 50);
+                                    List<LatLng> simplifiedNewLocations = PolyUtil.simplify(finalLocationsSequence, SIMPLIFICATION_TOLERANCE_METERS);
                                     List<LatLng> aggregatedLocationsSequence = null;
                                     if (!TextUtils.isEmpty(previousEncodedPath)) {
                                         List<LatLng> previousLocationsSequence = PolyUtil.decode(previousEncodedPath);

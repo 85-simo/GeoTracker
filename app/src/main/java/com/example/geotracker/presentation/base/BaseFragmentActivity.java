@@ -10,6 +10,9 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 
+/**
+ * Base class used for initialising DI. Must be extended by all activities meant to use fragments.
+ */
 public abstract class BaseFragmentActivity extends BaseActivity implements HasSupportFragmentInjector {
     @Inject
     DispatchingAndroidInjector<Fragment> fragmentInjector;

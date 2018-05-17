@@ -19,6 +19,13 @@ import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * Concerete implementation of the {@link Repository} interface:
+ * It uses RxJava 2 for easy implementation of data operations/manipulations. All needed mappers and DAOs are injected through Dagger2 and references are only
+ * kept through abstractions/interfaces. In this manner, the class is kept isolated from future changes occurring to all needed classes.
+ * Same applies to this class as well: it's been given package-level visibility only in order to restrict unsafe instantiation: all classes
+ * needing to interact with the data layer may do so only through the {@link Repository} interface.
+ */
 @Singleton
 class RepositoryImpl implements Repository {
     @NonNull

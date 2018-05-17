@@ -23,6 +23,10 @@ import java.util.List;
 
 import dagger.android.AndroidInjection;
 
+/**
+ * Base {@link AppCompatActivity} class whose purpose is defining common injection method calls for all activities which are not supposed to be dealing
+ * with fragments. It additionally encapsulate base logic for dealing with permissions requests/responses.
+ */
 public abstract class BaseActivity extends AppCompatActivity {
 
 
@@ -32,6 +36,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Method for explicitly requesting the user specific permissions grant.It also allows to specify a text meant to explain users why the app is
+     * requesting such permissions.
+     * @param permissionRequestRationale a string res id representing an explanation of the app's needs.
+     * @param requestedPermissions a varargs field containing all permissions that are to be requested through this operation.
+     */
     protected void requestPermissions(@StringRes int permissionRequestRationale, @NonNull String... requestedPermissions) {
         Dexter.withActivity(this)
                 .withPermissions(requestedPermissions)
@@ -39,6 +49,10 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .check();
     }
 
+
+    /**
+     * Listener class that gets notified of whether the user has granted the previously requested permissions.
+     */
     private class PermissionsListener implements MultiplePermissionsListener {
         @StringRes
         private int permissionsRequestRationaleResId;
@@ -64,29 +78,42 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         @Override
         public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+            // Request permissions again!
             token.continuePermissionRequest();
         }
     }
 
+    /**
+     * Abstract method to be implemented by extending Activities which gets called whenever the user has granted at least one permission within the
+     * set of requested permissions.
+     * @param grantedPermissions a varargs field representing all permissions granted during the last invoked operation.
+     */
     protected abstract void onPermissionsGranted(String[] grantedPermissions);
 
+    /**
+     * Utility method used for providing a quick handle to showing a Snackbar with a "Go to app settings" side button.
+     * @param textStringRes A string res id representing the Snackbar's text
+     * @param showSettingsButton whether or not the displayed Snackbar should provide the user with the possibility of quickly open app settings.
+     */
     protected void showSnackbar(@StringRes int textStringRes, boolean showSettingsButton) {
         Snackbar snackbar = Snackbar.make(getWindow().getDecorView(), textStringRes, Snackbar.LENGTH_LONG);
         if (showSettingsButton) {
-            snackbar.setAction(R.string.common_settings, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openAppSettings();
-                }
-            });
+            snackbar.setAction(R.string.common_settings, v -> openAppSettings());
         }
         snackbar.show();
     }
 
+    /**
+     * Utility method used for displaying a permissions' request rationale in a Snackbar with a link to app settings.
+     * @param rationaleResId a string res id representing the rationale text to be displayed.
+     */
     protected void showPermissionRationale(@StringRes int rationaleResId) {
         showSnackbar(rationaleResId, true);
     }
 
+    /**
+     * Utility method used for requesting the OS to redirect the user to the app's settings screen.
+     */
     protected void openAppSettings() {
         Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.parse("package:" + getPackageName()));

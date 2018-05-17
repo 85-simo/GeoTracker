@@ -6,8 +6,13 @@ import android.arch.persistence.room.PrimaryKey;
 
 import com.example.geotracker.data.persistence.DbConstants;
 
+/**
+ * Entity class representing a table in the underlying SQLite database storage engine. It includes basic information about all recorded journeys
+ * as well as each journey's completion status and the so far recorded path, persisted as an encoded {@link String} for minimising data footprint.
+ * Setter methods are allowed but never really used throughout the app.
+ */
 @Entity(tableName = DbConstants.Journey.TABLE_NAME)
-public class Journey {
+public final class Journey {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = DbConstants.Journey.COL_ID)

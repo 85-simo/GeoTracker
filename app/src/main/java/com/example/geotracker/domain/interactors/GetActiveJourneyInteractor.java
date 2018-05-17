@@ -14,6 +14,11 @@ import javax.inject.Inject;
 
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
+
+/**
+ * Interactor meant to request a non-refreshing snapshot of the current set of persisted journeys, map such set to presentation-level entities,
+ * filter-out all non-active journeys and forward results to the inner layer.
+ */
 class GetActiveJourneyInteractor implements GetInteractor<Void, List<VisibleJourney>> {
     @NonNull
     private Repository repository;

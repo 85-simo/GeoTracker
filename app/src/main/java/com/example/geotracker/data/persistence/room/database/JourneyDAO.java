@@ -16,6 +16,13 @@ import java.util.List;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 
+/**
+ * A {@link Dao} class representing all needed interaction between an inner component
+ * (a {@link com.example.geotracker.data.repositories.Repository}
+ * component in this case) and the underlying data storage engine. Concrete implementation is generated at compile-time by
+ * {@link android.arch.persistence.room.Room} annotation processor.
+ *
+ */
 @Dao
 public abstract class JourneyDAO {
 

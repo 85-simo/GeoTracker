@@ -15,6 +15,12 @@ import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 import dagger.android.HasServiceInjector;
 
+/**
+ * {@link Application} class used for initialising external frameworks:
+ * - JodaTime Android version for DateTime manipulation
+ * - LeakCanary as a safeguard agains possible memory leaks
+ * - Dagger2 used as a DI framework
+ */
 public class GeoTrackerApplication extends Application implements HasActivityInjector, HasServiceInjector {
     @Inject
     DispatchingAndroidInjector<Activity> activityInjector;

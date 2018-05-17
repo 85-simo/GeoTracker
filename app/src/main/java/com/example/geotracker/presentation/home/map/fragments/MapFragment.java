@@ -53,7 +53,11 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment implementation representing the app's main map. It's responsible for showing the user's position on a {@link GoogleMap}, following user's movements,
+ * handling current active journey path changes (by drawing a polyline on the displayed map mean to represent the path followed by the user itself. It additionally
+ * add a Marker in order to highlight where the currently active recording has started at.
+ * All events, such as active path updates, user location updates, permissions grant etc. are notified through specific LiveData streams and come by an instance of
+ * a {@link MainViewModel} object.
  */
 public class MapFragment extends BaseFragment {
     private static final int DEFAULT_ZOOM_LEVEL = 17;

@@ -10,6 +10,10 @@ import javax.inject.Inject;
 
 import io.reactivex.functions.Function;
 
+/**
+ * Same as {@link RestrictedToVisibleJourneysFilteredMapper}, but does not apply any filter to the set of result: it maps all
+ * objects it's given in input.
+ */
 class RestrictedToVisibleJourneysMapper implements Function<List<RestrictedJourney>, List<VisibleJourney>> {
     @Inject
     RestrictedToVisibleJourneysMapper() {

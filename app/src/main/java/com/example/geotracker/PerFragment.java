@@ -6,6 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 
 import javax.inject.Scope;
 
+/**
+ * Annotation used for Dagger2 configuration: needed in order to restrict the annotated component's scope.
+ * Components annotated with the {@link PerFragment} annotation will be kept in memory as long as the {@link android.app.Fragment}
+ * injecting them.
+ */
 @Scope
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

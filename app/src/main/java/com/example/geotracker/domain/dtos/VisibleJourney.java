@@ -1,6 +1,10 @@
 package com.example.geotracker.domain.dtos;
 
-public class VisibleJourney {
+/**
+ * Presentation-level entity representing a {@link com.example.geotracker.data.persistence.room.entities.Journey}, used for abstracting presentation-level
+ * classes from unneeded details which are restricted to domain-level classes. See {@link com.example.geotracker.data.dtos.RestrictedJourney}
+ */
+public final class VisibleJourney {
     public static final long GENERATE_NEW_IDENTIFIER = 0L;
 
     private final long identifier;

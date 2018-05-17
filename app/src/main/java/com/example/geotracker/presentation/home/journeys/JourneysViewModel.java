@@ -19,6 +19,12 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * ViewModel class specific to the {@link com.example.geotracker.presentation.home.journeys.fragments.JourneysFragment} (see {@link com.example.geotracker.presentation.home.MainViewModel}
+ * for basic ViewModel concepts and implementation logic.
+ * It's only responsibility is updating the {@link com.example.geotracker.presentation.home.journeys.fragments.JourneysFragment} view
+ * providing it with continuously refreshing journey events.
+ */
 @PerActivity
 public class JourneysViewModel extends ViewModel {
     @NonNull

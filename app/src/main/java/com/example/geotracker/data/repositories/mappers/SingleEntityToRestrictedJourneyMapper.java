@@ -7,7 +7,10 @@ import com.example.geotracker.utils.DateTimeUtils;
 import javax.inject.Inject;
 
 import io.reactivex.functions.Function;
-
+/**
+ * Mapper class using for defining conversion rules between a data-layer specific data-model class and its domain-specific equivalent representation.
+ * It's kept separated from other classes in order to keep other components unaware of data-conversion (and implicitly of data-representation) logic.
+ */
 class SingleEntityToRestrictedJourneyMapper implements Function<Journey, RestrictedJourney> {
 
     @Inject

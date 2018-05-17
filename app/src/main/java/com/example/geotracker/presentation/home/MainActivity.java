@@ -54,6 +54,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/**
+ * Class representing the app's main view: it injects an instance of a {@link ViewModelProvider.Factory} through Dagger
+ * and uses it in order to obtain an instance of the {@link MainViewModel} which encapsulates all presentation logic
+ * related to it. Communication with the ViewModel is done through direct method call (Activity->ViewModel) in order to signal specific
+ * states or user interactions. Conversely, ViewModel to Activity communication is handled through LiveData observable streams/events.
+ * The Activity is responsible for providing the user with a {@link BottomNavigationView} in order to allow it to switch between the main
+ * map view and a view containing the list of recorded journeys. It's then responsible for notifying the viewmodel of user interactions such as
+ * clicks on the record {@link FloatingActionButton} or bottom tabs. Additionally, it handles capturing live location changes, as well as permission requests.
+ */
 public class MainActivity extends BaseFragmentActivity {
     @Inject
     ViewModelProvider.Factory viewModelFactory;

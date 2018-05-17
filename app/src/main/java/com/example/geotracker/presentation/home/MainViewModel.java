@@ -37,6 +37,18 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * Class representing the ViewModel of the main activity. Its scope is the same as the one of the Activity that injected it and, as such, may
+ * easily be shared between the injecting activity and its fragments. It provides presentation logic to the MainActivity and MapFragment classes,
+ * enabling them to indirectly communicate with each other. It interacts with the domain layer through dynamically injected interfaces and RxJava
+ * observable objects, thus being totally separated by the other layers of the app. On the other side, it communicates with Views through the usage
+ * of LiveData object (both one-shot and refreshing instances, depending on the result it needs to achieve), thus ensuring that no asynchronous
+ * event get delivered to them when they are stopped or removed by the OS (LiveData object are bound to components' lifecycle by implementation)
+ * thus ensuring we never get "strange" exceptions due to async operations being triggered in the wrong View state (FragmentTransactions for instance).
+ * At the same time, events dispatched through MutableLiveData objects are guaranteed to be redelivered to observing components if they couldn't be
+ * delivered due to such components being in the stopped state. Finally, communication with Views is achieved by forwarding specific "Event" objects
+ * through LiveData streams.
+ */
 @PerActivity
 public class MainViewModel extends ViewModel {
     @NonNull

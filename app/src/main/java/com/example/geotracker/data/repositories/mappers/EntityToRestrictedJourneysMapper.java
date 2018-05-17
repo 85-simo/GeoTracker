@@ -11,6 +11,9 @@ import javax.inject.Inject;
 
 import io.reactivex.functions.Function;
 
+/**
+ * Same as {@link EntityToRestrictedJourneysMapper} but applicable to {@link List} objects.
+ */
 public class EntityToRestrictedJourneysMapper implements Function<List<Journey>, List<RestrictedJourney>> {
 
     @Inject

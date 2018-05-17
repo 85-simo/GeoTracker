@@ -1,5 +1,8 @@
 package com.example.geotracker.data.persistence;
 
+/**
+ * Utility class representing a way for avoiding hardcoded Strings to be used for both queries and column names in db-def classes.
+ */
 public class DbConstants {
     public final class Journey {
         public static final String TABLE_NAME = "journeys";
