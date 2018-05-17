@@ -45,6 +45,13 @@ import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+/**
+ * Activity responsible for displaying both the path and general info related to a specific journey. It's triggered explicitly by another component's invocation,
+ * receiving the requested Journey id through {@link Intent} extras. It then unwraps such parameter and notifies its viewmodel, requesting updates related to
+ * the input journey id. Whenever it receives an update, it refreshes both the path plotted on its map and the info contained in the bottom container.
+ *
+ * All info related to the selected journey are displayed within a draggable bottom sheet.
+ */
 public class JourneyDetailsActivity extends BaseActivity {
     public static final String EXTRA_JOURNEY_ID = JourneyDetailsActivity.class.getCanonicalName() + ".EXTRA_JOURNEY_ID";
     private static final int POLYLINE_WIDTH = 10;

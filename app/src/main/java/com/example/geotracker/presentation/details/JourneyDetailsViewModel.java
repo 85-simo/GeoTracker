@@ -24,6 +24,12 @@ import javax.inject.Inject;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * ViewModel providing presentation logic to the {@link JourneyDetailsActivity} class.
+ * Immediately after being instantiated, this ViewModel is supposed to receive a request for a specific Journey id.
+ * It then sets up specific Rx Observers related to the requested Journeys and starts notifying listeners of updates
+ * to both the path and general info concerning the requested Journey.
+ */
 @PerActivity
 public class JourneyDetailsViewModel extends ViewModel {
     @NonNull
