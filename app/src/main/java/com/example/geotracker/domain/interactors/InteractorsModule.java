@@ -5,7 +5,6 @@ import com.example.geotracker.domain.base.GetInteractor;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
-import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
 import com.example.geotracker.domain.interactors.qualifiers.AllJourneys;
 
@@ -20,16 +19,7 @@ public abstract class InteractorsModule {
     abstract PersistInteractor<Void, VisibleJourney> bindSingleJourneyPersistInteractor(PersistSingleJourneyInteractor persistSingleJourneyInteractor);
 
     @Binds
-    abstract PersistInteractor<Long, VisibleLocation> bindSingleLocationPersistInteractor(PersistSingleLocationInteractor persistSingleLocationInteractor);
-
-    @Binds
     abstract PersistInteractor<Void, Boolean> bindTrackingStatePersistInteractor(PersistTrackingStateInteractor persistTrackingStateInteractor);
-
-    @Binds
-    abstract PersistInteractor<Void, List<VisibleLocation>> bindLocationsListToActiveJourneyPersistInteractor(PersistLocationsForActiveJourneyInteractor persistLocationsForActiveJourneyInteractor);
-
-    @Binds
-    abstract PersistInteractor<Long, List<VisibleLocation>> bindLocationsListPersistInteractor(PersistLocationsListInteractor persistLocationsListInteractor);
 
     @Binds
     abstract GetInteractor<Void, List<VisibleJourney>> bindAllJourneysGetInteractor(GetJourneysInteractor getJourneysInteractor);
@@ -43,9 +33,6 @@ public abstract class InteractorsModule {
     abstract GetInteractor<Void, List<VisibleJourney>> bindActiveJourneysGetInteractor(GetActiveJourneyInteractor getActiveJourneyInteractor);
 
     @Binds
-    abstract RetrieveInteractor<Long, List<VisibleLocation>> bindAllLocationsForGivenJourneyRetrieveInteractor(RetrieveLocationsInteractor retrieveLocationsInteractor);
-
-    @Binds
     abstract RetrieveInteractor<Void, Boolean> bindTrackingStateRetrieveInteractor(RetrieveTrackingStateInteractor retrieveTrackingStateInteractor);
 
     @AllJourneys
@@ -55,9 +42,6 @@ public abstract class InteractorsModule {
     @ActiveJourneys
     @Binds
     abstract RetrieveInteractor<Void, List<VisibleJourney>> bindActiveJourneysRetrieveInteractor(RetrieveActiveJourneysInteractor retrieveActiveJourneysInteractor);
-
-    @Binds
-    abstract RetrieveInteractor<Void, List<VisibleLocation>> bindAllLocationsForActiveJourneyRetrieveInteractor(RetrieveActiveJourneyLocationsInteractor retrieveActiveJourneyLocationsInteractor);
 
     @Binds
     abstract RetrieveInteractor<Long, VisibleJourney> bindSingleJourneyRetrieveInteractor(RetrieveSingleJourneyInteractor retrieveSingleJourneyInteractor);

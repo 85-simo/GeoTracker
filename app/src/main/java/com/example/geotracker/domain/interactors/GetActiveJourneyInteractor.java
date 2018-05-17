@@ -16,9 +16,9 @@ import io.reactivex.Single;
 import io.reactivex.functions.Function;
 class GetActiveJourneyInteractor implements GetInteractor<Void, List<VisibleJourney>> {
     @NonNull
-    Repository repository;
+    private Repository repository;
     @NonNull
-    Function<List<RestrictedJourney>, List<VisibleJourney>> journeyMapper;
+    private Function<List<RestrictedJourney>, List<VisibleJourney>> journeyMapper;
 
     @Inject
     GetActiveJourneyInteractor(@NonNull Repository repository,

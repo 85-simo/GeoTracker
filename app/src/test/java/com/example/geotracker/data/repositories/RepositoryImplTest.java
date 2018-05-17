@@ -1,7 +1,6 @@
 package com.example.geotracker.data.repositories;
 
 import com.example.geotracker.data.persistence.room.database.JourneyDAO;
-import com.example.geotracker.data.persistence.room.database.LocationDAO;
 import com.example.geotracker.data.persistence.room.entities.Journey;
 import com.example.geotracker.data.repositories.mappers.EntityToRestrictedJourneyMapper;
 import com.example.geotracker.data.repositories.mappers.EntityToRestrictedLocationMapper;

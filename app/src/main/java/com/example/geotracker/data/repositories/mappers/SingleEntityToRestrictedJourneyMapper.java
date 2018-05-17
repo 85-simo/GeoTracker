@@ -19,6 +19,6 @@ class SingleEntityToRestrictedJourneyMapper implements Function<Journey, Restric
     public RestrictedJourney apply(Journey journey) throws Exception {
         String startedAtDateTimeIso = DateTimeUtils.utcMillisToDateTimeIsoString(journey.getStartedAtTimestamp());
         String completedAtDateTimeIso = DateTimeUtils.utcMillisToDateTimeIsoString(journey.getCompletedAtTimestamp());
-        return new RestrictedJourney(journey.getId(), journey.isComplete(), startedAtDateTimeIso, completedAtDateTimeIso, journey.getTitle());
+        return new RestrictedJourney(journey.getId(), journey.isComplete(), startedAtDateTimeIso, completedAtDateTimeIso, journey.getTitle(), journey.getEncodedPath());
     }
 }

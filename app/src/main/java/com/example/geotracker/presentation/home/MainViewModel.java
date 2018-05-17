@@ -6,36 +6,34 @@ import android.arch.lifecycle.ViewModel;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import com.example.geotracker.PerActivity;
 import com.example.geotracker.R;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.base.RetrieveInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
-import com.example.geotracker.domain.dtos.VisibleLocation;
 import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
 import com.example.geotracker.presentation.details.JourneyDetailsActivity;
 import com.example.geotracker.presentation.home.map.events.ActivityEvent;
 import com.example.geotracker.presentation.home.map.events.LocationUpdateEvent;
 import com.example.geotracker.presentation.home.map.events.NavigationEvent;
+import com.example.geotracker.presentation.home.map.events.PathEvent;
 import com.example.geotracker.presentation.map.events.MapEvent;
-import com.example.geotracker.presentation.map.events.PathEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.utils.DateTimeUtils;
 import com.example.geotracker.utils.SingleLiveEvent;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 import org.reactivestreams.Subscription;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -45,8 +43,6 @@ public class MainViewModel extends ViewModel {
     private RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor;
     @NonNull
     private PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor;
-    @NonNull
-    private RetrieveInteractor<Void, List<VisibleLocation>> retrieveVisibleLocationsForActiveJourneyInteractor;
 
     @NonNull
     private MutableLiveData<PermissionsRequestEvent> permissionsRequestLiveEvent;
@@ -67,16 +63,12 @@ public class MainViewModel extends ViewModel {
 
     @NonNull
     private CompositeDisposable compositeDisposable;
-    @Nullable
-    private Disposable activePathUpdatesConsumerDisposable;
 
     @Inject
     MainViewModel(@NonNull @ActiveJourneys RetrieveInteractor<Void, List<VisibleJourney>> retrieveActiveJourneysInteractor,
-                  @NonNull PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor,
-                  @NonNull RetrieveInteractor<Void, List<VisibleLocation>> retrieveVisibleLocationsForActiveJourneyInteractor) {
+                  @NonNull PersistInteractor<Void, VisibleJourney> persistSingleJourneyInteractor) {
         this.retrieveActiveJourneysInteractor = retrieveActiveJourneysInteractor;
         this.persistSingleJourneyInteractor = persistSingleJourneyInteractor;
-        this.retrieveVisibleLocationsForActiveJourneyInteractor = retrieveVisibleLocationsForActiveJourneyInteractor;
 
         this.permissionsRequestLiveEvent = new SingleLiveEvent<>();
         this.permissionGrantLiveEvent = new SingleLiveEvent<>();
@@ -195,7 +187,7 @@ public class MainViewModel extends ViewModel {
                     if (!activeJourneys.isEmpty()) {
                         VisibleJourney activeJourney = activeJourneys.get(0);
                         String completedDateTimeUTCString = DateTimeUtils.utcMillisToDateTimeIsoString(System.currentTimeMillis());
-                        VisibleJourney completedJourney = new VisibleJourney(activeJourney.getIdentifier(), true, activeJourney.getStartedAtUTCDateTimeIso(), completedDateTimeUTCString, activeJourney.getTitle());
+                        VisibleJourney completedJourney = new VisibleJourney(activeJourney.getIdentifier(), true, activeJourney.getStartedAtUTCDateTimeIso(), completedDateTimeUTCString, activeJourney.getTitle(), activeJourney.getEncodedPath());
                         MainViewModel.this.persistSingleJourneyInteractor
                                 .persist(null, completedJourney)
                                 .observeOn(Schedulers.computation())
@@ -213,7 +205,7 @@ public class MainViewModel extends ViewModel {
     public void onJourneyCreationValuesSubmitted(@NonNull String journeyName) {
         String journeyStartDateTimeUTCString = DateTimeUtils.utcMillisToDateTimeIsoString(System.currentTimeMillis());
         String journeyEndDateTimeUTCString = DateTimeUtils.utcMillisToDateTimeIsoString(0);
-        VisibleJourney activeJourney = new VisibleJourney(VisibleJourney.GENERATE_NEW_IDENTIFIER, false, journeyStartDateTimeUTCString, journeyEndDateTimeUTCString, journeyName);
+        VisibleJourney activeJourney = new VisibleJourney(VisibleJourney.GENERATE_NEW_IDENTIFIER, false, journeyStartDateTimeUTCString, journeyEndDateTimeUTCString, journeyName, null);
         this.persistSingleJourneyInteractor
                 .persist(null, activeJourney)
                 .observeOn(Schedulers.computation())
@@ -247,15 +239,8 @@ public class MainViewModel extends ViewModel {
         });
     }
 
-    private void clearActivePathUpdatesDisposableIfNeeded() {
-        if (this.activePathUpdatesConsumerDisposable != null && !this.activePathUpdatesConsumerDisposable.isDisposed()) {
-            this.activePathUpdatesConsumerDisposable.dispose();
-        }
-    }
-
     @Override
     protected void onCleared() {
-        clearActivePathUpdatesDisposableIfNeeded();
         this.compositeDisposable.dispose();
         super.onCleared();
     }
@@ -266,31 +251,18 @@ public class MainViewModel extends ViewModel {
         public void accept(List<VisibleJourney> visibleJourneys) {
             if (visibleJourneys.isEmpty()) {
                 MainViewModel.this.trackingStateStreamEvent.postValue(false);
-                clearActivePathUpdatesDisposableIfNeeded();
             }
             else {
                 MainViewModel.this.trackingStateStreamEvent.postValue(true);
-                MainViewModel.this.activePathUpdatesConsumerDisposable = MainViewModel.this.retrieveVisibleLocationsForActiveJourneyInteractor
-                        .retrieve(null)
-                        .observeOn(Schedulers.computation())
-                        .subscribe(new ActivePathRecordingUpdatesConsumer());
+                String encodedPath = visibleJourneys.get(0).getEncodedPath();
+                if (!TextUtils.isEmpty(encodedPath)) {
+                    List<LatLng> decodedPath = PolyUtil.decode(encodedPath);
+                    PolylineOptions polylineOptions = new PolylineOptions()
+                            .addAll(decodedPath);
+                    PathEvent pathEvent = new PathEvent(PathEvent.Type.TYPE_PATH_UPDATE_RECEIVED, polylineOptions);
+                    MainViewModel.this.journeyEventsObservableStream.postValue(pathEvent);
+                }
             }
-        }
-    }
-
-    private class ActivePathRecordingUpdatesConsumer implements Consumer<List<VisibleLocation>> {
-
-        @Override
-        public void accept(List<VisibleLocation> visibleLocations) {
-            List<LatLng> pathLatLngList = new ArrayList<>(visibleLocations.size());
-            for (VisibleLocation visibleLocation : visibleLocations) {
-                LatLng locationLatLng = new LatLng(visibleLocation.getLatitude(), visibleLocation.getLongitude());
-                pathLatLngList.add(locationLatLng);
-            }
-            PolylineOptions polylineOptions = new PolylineOptions()
-                    .addAll(pathLatLngList);
-            PathEvent pathEvent = new PathEvent(PathEvent.Type.TYPE_PATH_UPDATE_RECEIVED, polylineOptions);
-            MainViewModel.this.journeyEventsObservableStream.postValue(pathEvent);
         }
     }
 }

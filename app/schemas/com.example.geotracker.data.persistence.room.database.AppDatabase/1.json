@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "92cfe92134c905fb94e9730892b96e65",
+    "identityHash": "4960c4d438b2ddf3ce70a2158102d404",
     "entities": [
       {
         "tableName": "journeys",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `is_complete` INTEGER NOT NULL, `title` TEXT, `started_at` INTEGER NOT NULL, `completed_at` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `is_complete` INTEGER NOT NULL, `title` TEXT, `started_at` INTEGER NOT NULL, `completed_at` INTEGER NOT NULL, `encoded_path` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -37,6 +37,12 @@
             "columnName": "completed_at",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "encodedPath",
+            "columnName": "encoded_path",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -47,76 +53,11 @@
         },
         "indices": [],
         "foreignKeys": []
-      },
-      {
-        "tableName": "locations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lat` REAL NOT NULL, `lng` REAL NOT NULL, `timestamp` INTEGER NOT NULL, `journey_id` INTEGER NOT NULL, FOREIGN KEY(`journey_id`) REFERENCES `journeys`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "latitude",
-            "columnName": "lat",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "longitude",
-            "columnName": "lng",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "timestamp",
-            "columnName": "timestamp",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "journeyId",
-            "columnName": "journey_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "columnNames": [
-            "id"
-          ],
-          "autoGenerate": true
-        },
-        "indices": [
-          {
-            "name": "index_locations_journey_id",
-            "unique": false,
-            "columnNames": [
-              "journey_id"
-            ],
-            "createSql": "CREATE  INDEX `index_locations_journey_id` ON `${TABLE_NAME}` (`journey_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "journeys",
-            "onDelete": "CASCADE",
-            "onUpdate": "CASCADE",
-            "columns": [
-              "journey_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"92cfe92134c905fb94e9730892b96e65\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4960c4d438b2ddf3ce70a2158102d404\")"
     ]
   }
 }

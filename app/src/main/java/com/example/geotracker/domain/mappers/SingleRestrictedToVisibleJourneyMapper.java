@@ -20,6 +20,7 @@ class SingleRestrictedToVisibleJourneyMapper implements Function<RestrictedJourn
                 restrictedJourney.isComplete(),
                 restrictedJourney.getStartedAtUTCDateTimeIso(),
                 restrictedJourney.getCompletedAtUTCDateTimeIso(),
-                restrictedJourney.getTitle());
+                restrictedJourney.getTitle(),
+                restrictedJourney.getEncodedPath());
     }
 }

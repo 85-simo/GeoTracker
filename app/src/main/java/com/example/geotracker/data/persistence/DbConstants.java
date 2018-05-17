@@ -8,14 +8,6 @@ public class DbConstants {
         public static final String COL_STARTED_AT = "started_at";
         public static final String COL_COMPLETED_AT = "completed_at";
         public static final String COL_TITLE = "title";
-    }
-
-    public final class Location {
-        public static final String TABLE_NAME = "locations";
-        public static final String COL_ID = "id";
-        public static final String COL_LATITUDE = "lat";
-        public static final String COL_LONGITUDE = "lng";
-        public static final String COL_TIMESTAMP = "timestamp";
-        public static final String COL_JOURNEY_ID = "journey_id";
+        public static final String COL_ENCODED_PATH = "encoded_path";
     }
 }

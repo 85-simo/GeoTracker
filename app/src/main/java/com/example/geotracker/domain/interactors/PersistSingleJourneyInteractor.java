@@ -26,7 +26,8 @@ class PersistSingleJourneyInteractor implements PersistInteractor<Void, VisibleJ
                 visibleJourney.isComplete(),
                 visibleJourney.getStartedAtUTCDateTimeIso(),
                 visibleJourney.getCompletedAtUTCDateTimeIso(),
-                visibleJourney.getTitle());
+                visibleJourney.getTitle(),
+                visibleJourney.getEncodedPath());
         return this.repository
                 .insertOrUpdateJourney(restrictedJourney);
     }
