@@ -18,6 +18,7 @@ import com.example.geotracker.R;
 import com.example.geotracker.domain.base.GetInteractor;
 import com.example.geotracker.domain.base.PersistInteractor;
 import com.example.geotracker.domain.dtos.VisibleJourney;
+import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
 import com.example.geotracker.presentation.base.BaseService;
 import com.example.geotracker.presentation.home.MainActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -48,6 +49,7 @@ public class TrackingService extends BaseService {
     private static final String TRACKING_NOTIFICATION_CHANNEL_ID = TrackingService.class.getCanonicalName() + ".TRACKING_NOTIFICATION_CHANNEL_ID";
     private static final int TRACKING_NOTIFICATION_ID = 31141;
 
+    @ActiveJourneys
     @Inject
     GetInteractor<Void, List<VisibleJourney>> getActiveJourneyInteractor;
     @Inject
