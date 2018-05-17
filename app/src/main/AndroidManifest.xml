@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".GeoTrackerApplication"
@@ -37,8 +38,18 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".presentation.details.JourneyDetailsActivity"
+        <activity
+            android:name=".presentation.details.JourneyDetailsActivity"
             android:screenOrientation="portrait" />
+
+        <receiver
+            android:name=".presentation.tracking.receivers.BootCompletedReceiver"
+            android:enabled="false"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

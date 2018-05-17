@@ -2,10 +2,13 @@ package com.example.geotracker.presentation.home;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
@@ -34,6 +37,7 @@ import com.example.geotracker.presentation.home.map.fragments.MapFragment;
 import com.example.geotracker.presentation.map.events.MapEvent;
 import com.example.geotracker.presentation.map.events.PermissionsRequestEvent;
 import com.example.geotracker.presentation.tracking.TrackingService;
+import com.example.geotracker.presentation.tracking.receivers.BootCompletedReceiver;
 import com.example.geotracker.utils.PermissionsUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -242,6 +246,7 @@ public class MainActivity extends BaseFragmentActivity {
                     Intent serviceIntent = new Intent(mainActivity, TrackingService.class);
                     switch (mapEvent.getType()) {
                         case TYPE_START_TRACKING_SERVICE:
+                            setBootCompleteReceiverEnabled(true);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 mainActivity.startForegroundService(serviceIntent);
                             } else {
@@ -250,6 +255,7 @@ public class MainActivity extends BaseFragmentActivity {
                             break;
                         case TYPE_STOP_TRACKING_SERVICE:
                             mainActivity.stopService(serviceIntent);
+                            setBootCompleteReceiverEnabled(false);
                             break;
                         case TYPE_SHOW_NEW_JOURNEY_CREATOR:
                             new MaterialDialog.Builder(mainActivity)
@@ -261,6 +267,20 @@ public class MainActivity extends BaseFragmentActivity {
                                     .show();
                             break;
                     }
+                }
+            }
+        }
+
+        private void setBootCompleteReceiverEnabled(boolean enabled) {
+            MainActivity activity = this.activityWeakReference.get();
+            if (activity != null) {
+                PackageManager pm = activity.getPackageManager();
+                ComponentName componentName = new ComponentName(activity, BootCompletedReceiver.class);
+                if (enabled) {
+                    pm.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                }
+                else {
+                    pm.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
                 }
             }
         }
