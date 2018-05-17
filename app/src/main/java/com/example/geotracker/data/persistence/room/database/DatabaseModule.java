@@ -26,10 +26,4 @@ public class DatabaseModule {
     static JourneyDAO provideJourneyDAO(@NonNull AppDatabase appDatabase) {
         return appDatabase.journeyDAO();
     }
-
-    @Provides
-    @Singleton
-    static LocationDAO provideLocationDAO(@NonNull AppDatabase appDatabase) {
-        return appDatabase.locationDAO();
-    }
 }

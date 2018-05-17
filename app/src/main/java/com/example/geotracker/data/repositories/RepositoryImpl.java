@@ -3,15 +3,11 @@ package com.example.geotracker.data.repositories;
 import android.support.annotation.NonNull;
 
 import com.example.geotracker.data.dtos.RestrictedJourney;
-import com.example.geotracker.data.dtos.RestrictedLocation;
 import com.example.geotracker.data.persistence.prefs.SharedPreferencesProvider;
 import com.example.geotracker.data.persistence.room.database.JourneyDAO;
-import com.example.geotracker.data.persistence.room.database.LocationDAO;
 import com.example.geotracker.data.persistence.room.entities.Journey;
-import com.example.geotracker.data.persistence.room.entities.Location;
 import com.example.geotracker.utils.DateTimeUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -28,10 +24,6 @@ class RepositoryImpl implements Repository {
     @NonNull
     private JourneyDAO journeyDAO;
     @NonNull
-    private LocationDAO locationDAO;
-    @NonNull
-    private Function<List<Location>, List<RestrictedLocation>> entityToRestrictedLocationMapper;
-    @NonNull
     private Function<List<Journey>, List<RestrictedJourney>> entityToRestrictedJourneyMapper;
     @NonNull
     private Function<Journey, RestrictedJourney> singleEntityToRestrictedJourneyMapper;
@@ -40,14 +32,10 @@ class RepositoryImpl implements Repository {
 
     @Inject
     RepositoryImpl(@NonNull JourneyDAO journeyDAO,
-                   @NonNull LocationDAO locationDAO,
                    @NonNull SharedPreferencesProvider sharedPreferencesProvider,
-                   @NonNull Function<List<Location>, List<RestrictedLocation>> entityToRestrictedLocationMapper,
                    @NonNull Function<List<Journey>, List<RestrictedJourney>> entityToRestrictedJourneyMapper,
                    @NonNull Function<Journey, RestrictedJourney> singleEntityToRestrictedJourneyMapper) {
         this.journeyDAO = journeyDAO;
-        this.locationDAO = locationDAO;
-        this.entityToRestrictedLocationMapper = entityToRestrictedLocationMapper;
         this.entityToRestrictedJourneyMapper = entityToRestrictedJourneyMapper;
         this.singleEntityToRestrictedJourneyMapper = singleEntityToRestrictedJourneyMapper;
         this.sharedPreferencesProvider = sharedPreferencesProvider;
@@ -88,56 +76,9 @@ class RepositoryImpl implements Repository {
     }
 
     @Override
-    public Flowable<List<RestrictedLocation>> getRefreshingLocationsByJourneyId(long journeyId) {
-        return this.locationDAO
-                .getSortedLocationsByJourneyIdFlowable(journeyId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.computation())
-                .map(this.entityToRestrictedLocationMapper);
-    }
-
-    @Override
     public Flowable<Boolean> getRefreshingTrackingState() {
         return this.sharedPreferencesProvider
                 .getRefreshingBooleanPrefValue(SharedPreferencesProvider.PREF_KEY_TRACKING_ACTIVE);
-    }
-
-    @Override
-    public Completable addLocationToJourney(RestrictedLocation restrictedLocation, long journeyId) {
-        return Completable.create(emitter -> {
-            try {
-                long recordAtMillis = DateTimeUtils.isoUTCDateTimeStringToMillis(restrictedLocation.getRecordedAtIso());
-                Location location = new Location(restrictedLocation.getIdentifier(), restrictedLocation.getLatitude(), restrictedLocation.getLongitude(), recordAtMillis, journeyId);
-                RepositoryImpl.this.locationDAO.upsertLocation(location);
-                emitter.onComplete();
-            }
-            catch (Exception e) {
-                emitter.onError(e);
-            }
-        })
-       .subscribeOn(Schedulers.io())
-       .observeOn(Schedulers.computation());
-    }
-
-    @Override
-    public Completable addLocationsToJourney(List<RestrictedLocation> locations, long journeyIdentifier) {
-        return Completable.create(emitter -> {
-            try {
-                List<Location> locationsToBePersisted = new ArrayList<>(locations.size());
-                for (RestrictedLocation restrictedLocation : locations) {
-                    long recordAtMillis = DateTimeUtils.isoUTCDateTimeStringToMillis(restrictedLocation.getRecordedAtIso());
-                    Location location = new Location(restrictedLocation.getIdentifier(), restrictedLocation.getLatitude(), restrictedLocation.getLongitude(), recordAtMillis, journeyIdentifier);
-                    locationsToBePersisted.add(location);
-                }
-                this.locationDAO.upsertLocations(locationsToBePersisted);
-                emitter.onComplete();
-            }
-            catch (Exception e) {
-                emitter.onError(e);
-            }
-        })
-        .subscribeOn(Schedulers.io())
-        .observeOn(Schedulers.computation());
     }
 
     @Override
@@ -148,9 +89,10 @@ class RepositoryImpl implements Repository {
                 long completedAtTimestamp = DateTimeUtils.isoUTCDateTimeStringToMillis(restrictedJourney.getCompletedAtUTCDateTimeIso());
                 Journey journey = new Journey(restrictedJourney.getIdentifier(),
                         restrictedJourney.isComplete(),
+                        restrictedJourney.getTitle(),
                         startedAtTimestamp,
                         completedAtTimestamp,
-                        restrictedJourney.getTitle());
+                        restrictedJourney.getEncodedPath());
                 RepositoryImpl.this.journeyDAO.upsertJourney(journey);
                 emitter.onComplete();
             }

@@ -24,7 +24,7 @@ public class EntityToRestrictedJourneysMapper implements Function<List<Journey>,
         for (Journey journey : journeys) {
             String startedAtDateTimeIso = DateTimeUtils.utcMillisToDateTimeIsoString(journey.getStartedAtTimestamp());
             String completedAtDateTimeIso = DateTimeUtils.utcMillisToDateTimeIsoString(journey.getCompletedAtTimestamp());
-            result.add(new RestrictedJourney(journey.getId(), journey.isComplete(), startedAtDateTimeIso, completedAtDateTimeIso, journey.getTitle()));
+            result.add(new RestrictedJourney(journey.getId(), journey.isComplete(), startedAtDateTimeIso, completedAtDateTimeIso, journey.getTitle(), journey.getEncodedPath()));
         }
         return result;
     }

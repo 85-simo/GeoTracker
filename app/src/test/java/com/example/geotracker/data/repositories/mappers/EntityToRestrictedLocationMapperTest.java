@@ -1,7 +1,5 @@
 package com.example.geotracker.data.repositories.mappers;
 
-import com.example.geotracker.data.dtos.RestrictedLocation;
-import com.example.geotracker.data.persistence.room.entities.Location;
 import com.example.geotracker.utils.DateTimeUtils;
 
 import org.junit.Assert;

@@ -5,11 +5,9 @@ import android.arch.persistence.room.RoomDatabase;
 
 import com.example.geotracker.BuildConfig;
 import com.example.geotracker.data.persistence.room.entities.Journey;
-import com.example.geotracker.data.persistence.room.entities.Location;
 
-@Database(entities = {Journey.class, Location.class},
+@Database(entities = {Journey.class},
         version = BuildConfig.DB_VERSION)
 abstract class AppDatabase extends RoomDatabase {
     public abstract JourneyDAO journeyDAO();
-    public abstract LocationDAO locationDAO();
 }

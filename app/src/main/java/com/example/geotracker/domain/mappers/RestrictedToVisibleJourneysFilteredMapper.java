@@ -22,7 +22,12 @@ class RestrictedToVisibleJourneysFilteredMapper implements Function<List<Restric
         List<VisibleJourney> result = new LinkedList<>();
         for (RestrictedJourney restrictedJourney : restrictedJourneys) {
             if (!restrictedJourney.isComplete()) {
-                result.add(new VisibleJourney(restrictedJourney.getIdentifier(), restrictedJourney.isComplete(), restrictedJourney.getStartedAtUTCDateTimeIso(), restrictedJourney.getCompletedAtUTCDateTimeIso(), restrictedJourney.getTitle()));
+                result.add(new VisibleJourney(restrictedJourney.getIdentifier(),
+                        restrictedJourney.isComplete(),
+                        restrictedJourney.getStartedAtUTCDateTimeIso(),
+                        restrictedJourney.getCompletedAtUTCDateTimeIso(),
+                        restrictedJourney.getTitle(),
+                        restrictedJourney.getEncodedPath()));
             }
         }
         return result;

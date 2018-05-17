@@ -25,12 +25,16 @@ public class Journey {
     @ColumnInfo(name = DbConstants.Journey.COL_COMPLETED_AT)
     private long completedAtTimestamp;
 
-    public Journey(long id, boolean complete, long startedAtTimestamp, long completedAtTimestamp, String title) {
+    @ColumnInfo(name = DbConstants.Journey.COL_ENCODED_PATH)
+    private String encodedPath;
+
+    public Journey(long id, boolean complete, String title, long startedAtTimestamp, long completedAtTimestamp, String encodedPath) {
         this.id = id;
         this.complete = complete;
+        this.title = title;
         this.startedAtTimestamp = startedAtTimestamp;
         this.completedAtTimestamp = completedAtTimestamp;
-        this.title = title;
+        this.encodedPath = encodedPath;
     }
 
     public long getId() {
@@ -49,6 +53,14 @@ public class Journey {
         this.complete = complete;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public long getStartedAtTimestamp() {
         return startedAtTimestamp;
     }
@@ -65,12 +77,12 @@ public class Journey {
         this.completedAtTimestamp = completedAtTimestamp;
     }
 
-    public String getTitle() {
-        return title;
+    public String getEncodedPath() {
+        return encodedPath;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setEncodedPath(String encodedPath) {
+        this.encodedPath = encodedPath;
     }
 
     @Override
@@ -84,7 +96,9 @@ public class Journey {
         if (isComplete() != journey.isComplete()) return false;
         if (getStartedAtTimestamp() != journey.getStartedAtTimestamp()) return false;
         if (getCompletedAtTimestamp() != journey.getCompletedAtTimestamp()) return false;
-        return getTitle() != null ? getTitle().equals(journey.getTitle()) : journey.getTitle() == null;
+        if (getTitle() != null ? !getTitle().equals(journey.getTitle()) : journey.getTitle() != null)
+            return false;
+        return getEncodedPath() != null ? getEncodedPath().equals(journey.getEncodedPath()) : journey.getEncodedPath() == null;
     }
 
     @Override
@@ -94,6 +108,7 @@ public class Journey {
         result = 31 * result + (getTitle() != null ? getTitle().hashCode() : 0);
         result = 31 * result + (int) (getStartedAtTimestamp() ^ (getStartedAtTimestamp() >>> 32));
         result = 31 * result + (int) (getCompletedAtTimestamp() ^ (getCompletedAtTimestamp() >>> 32));
+        result = 31 * result + (getEncodedPath() != null ? getEncodedPath().hashCode() : 0);
         return result;
     }
 }
