@@ -1,4 +1,4 @@
-package com.example.geotracker.presentation.journeys.adapters;
+package com.example.geotracker.presentation.home.journeys.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.geotracker.R;
+import com.example.geotracker.presentation.journeys.adapters.JourneyClickListener;
 import com.example.geotracker.presentation.journeys.adapters.datamodel.JourneyItem;
 import com.example.geotracker.utils.DateTimeUtils;
 
@@ -88,7 +89,7 @@ public class JourneyRecyclerAdapter extends RecyclerView.Adapter<JourneyRecycler
             if (adapter != null) {
                 JourneyItem clickedItem = adapter.mDataset.get(getAdapterPosition());
                 if (adapter.mListener != null) {
-                    adapter.mListener.onJourneyItemClicked(clickedItem.getJourneyId());
+                    adapter.mListener.onJourneyItemClicked(clickedItem.getJourneyId(), clickedItem.isJourneyActive());
                 }
             }
         }

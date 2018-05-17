@@ -166,14 +166,21 @@ public class MainViewModel extends ViewModel {
         });
     }
 
-    public void onJourneyItemClicked(long clickedJourneyId) {
+    public void onJourneyItemClicked(long clickedJourneyId, boolean isActive) {
         Schedulers.computation().scheduleDirect(new Runnable() {
             @Override
             public void run() {
-                Bundle extras = new Bundle();
-                extras.putLong(JourneyDetailsActivity.EXTRA_JOURNEY_ID, clickedJourneyId);
-                NavigationEvent navigationEvent = new NavigationEvent(NavigationEvent.Type.TYPE_ACTIVITY, JourneyDetailsActivity.class, extras);
-                MainViewModel.this.navigationEventsObservableStream.postValue(navigationEvent);
+                if (!isActive) {
+                    Bundle extras = new Bundle();
+                    extras.putLong(JourneyDetailsActivity.EXTRA_JOURNEY_ID, clickedJourneyId);
+                    NavigationEvent navigationEvent = new NavigationEvent(NavigationEvent.Type.TYPE_ACTIVITY, JourneyDetailsActivity.class, extras);
+                    MainViewModel.this.navigationEventsObservableStream.postValue(navigationEvent);
+                }
+                else {
+                    ActivityEvent.TabType selectedTabType = ActivityEvent.TabType.TAB_TYPE_MAP;
+                    ActivityEvent activityEvent = new ActivityEvent(ActivityEvent.Type.TYPE_TAB_SELECTED, selectedTabType);
+                    MainViewModel.this.activityEventsObservableStream.postValue(activityEvent);
+                }
             }
         });
     }

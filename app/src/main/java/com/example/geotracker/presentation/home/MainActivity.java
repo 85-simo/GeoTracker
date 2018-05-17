@@ -214,7 +214,11 @@ public class MainActivity extends BaseFragmentActivity {
         if (!TextUtils.isEmpty(transactionTag) && fragment != null) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager()
                     .beginTransaction();
-            int selectedItemOrder = this.mainActivityBnv.getMenu().findItem(tabItemId).getOrder();
+            MenuItem menuItem = this.mainActivityBnv.getMenu().findItem(tabItemId);
+            if (!menuItem.isChecked()) {
+                menuItem.setChecked(true);
+            }
+            int selectedItemOrder = menuItem.getOrder();
             if (selectedItemOrder == 0) {
                 fragmentTransaction = fragmentTransaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
             }
