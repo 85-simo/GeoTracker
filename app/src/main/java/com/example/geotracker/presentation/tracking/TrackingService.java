@@ -1,5 +1,6 @@
 package com.example.geotracker.presentation.tracking;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -7,8 +8,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
@@ -34,6 +39,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.maps.android.PolyUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -63,6 +70,9 @@ public class TrackingService extends BaseService {
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LocationCallback mLocationCallback;
 
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+
 
     public TrackingService() {
     }
@@ -72,6 +82,9 @@ public class TrackingService extends BaseService {
         super.onCreate();
         this.mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         this.mLocationCallback = new LocationUpdateCallback();
+        this.locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        this.locationListener = new LegacyLocationListener();
     }
 
     @Override
@@ -97,6 +110,7 @@ public class TrackingService extends BaseService {
             }
             startForeground(TRACKING_NOTIFICATION_ID, notification);
 
+//            startLegacyLocationUpdates();
             startLocationUpdates();
         }
         else {
@@ -108,6 +122,12 @@ public class TrackingService extends BaseService {
 
     private void startLocationUpdates() {
         Log.e("Service", "startLocationUpdates called");
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+            boolean fineLocGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            boolean coarseLocGranted = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            Log.e("startLocationUpdates", "ACCESS_FINE_LOCATION: " + fineLocGranted);
+            Log.e("startLocationUpdates", "ACCESS_COARSE_LOCATION: " + coarseLocGranted);
+        }
         LocationRequest locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(TimeUnit.SECONDS.toMillis(5));
@@ -115,8 +135,19 @@ public class TrackingService extends BaseService {
         task.addOnFailureListener(e -> Log.e("LocationUpdatesRequest", "onFailure"));
     }
 
+    @SuppressLint("MissingPermission")
+    private void startLegacyLocationUpdates() {
+        Log.e("Service", "startLegacyLocationUpdates called");
+        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0F, this.locationListener);
+    }
+
     private void stopLocationUpdates() {
         this.mFusedLocationProviderClient.removeLocationUpdates(this.mLocationCallback);
+    }
+
+    private void stopLegacyLocationUpdates() {
+        Log.e("Service", "stopLegacyLocationUpdates called");
+        this.locationManager.removeUpdates(this.locationListener);
     }
 
 
@@ -130,6 +161,7 @@ public class TrackingService extends BaseService {
     public void onDestroy() {
         this.serviceRunning = false;
         stopLocationUpdates();
+//        stopLegacyLocationUpdates();
         super.onDestroy();
     }
 
@@ -146,52 +178,84 @@ public class TrackingService extends BaseService {
 
         @Override
         public void onLocationResult(LocationResult locationResult) {
+            Log.e("LocationUpdateCallback", "onLocationResult called");
             Schedulers.computation().scheduleDirect(() -> {
                 if (locationResult != null) {
                     List<Location> locations = locationResult.getLocations();
-                    List<LatLng> locationsSequence = null;
-                    if (!locations.isEmpty()) {
-                        locationsSequence = new ArrayList<>(locations.size());
-                        for (Location location : locations) {
-                            locationsSequence.add(new LatLng(location.getLatitude(), location.getLongitude()));
-                        }
-                    }
-                    if (locationsSequence != null) {
-                        List<LatLng> finalLocationsSequence = locationsSequence;
-                        TrackingService.this.getActiveJourneyInteractor
-                            .get(null)
-                            .flatMapCompletable(visibleJourneys -> {
-                                if (!visibleJourneys.isEmpty()) {
-                                    VisibleJourney activeJourney = visibleJourneys.get(0);
-                                    String previousEncodedPath = activeJourney.getEncodedPath();
-                                    List<LatLng> simplifiedNewLocations = PolyUtil.simplify(finalLocationsSequence, SIMPLIFICATION_TOLERANCE_METERS);
-                                    List<LatLng> aggregatedLocationsSequence = null;
-                                    if (!TextUtils.isEmpty(previousEncodedPath)) {
-                                        List<LatLng> previousLocationsSequence = PolyUtil.decode(previousEncodedPath);
-                                        aggregatedLocationsSequence = new ArrayList<>(previousLocationsSequence.size() + simplifiedNewLocations.size());
-                                        aggregatedLocationsSequence.addAll(previousLocationsSequence);
-                                    }
-                                    if (aggregatedLocationsSequence == null) {
-                                        aggregatedLocationsSequence = new ArrayList<>();
-                                    }
-                                    aggregatedLocationsSequence.addAll(simplifiedNewLocations);
-                                    String newEncodedPath = PolyUtil.encode(aggregatedLocationsSequence);
-                                    VisibleJourney visibleJourney = new VisibleJourney(activeJourney.getIdentifier(),
-                                            activeJourney.isComplete(),
-                                            activeJourney.getStartedAtUTCDateTimeIso(),
-                                            activeJourney.getCompletedAtUTCDateTimeIso(),
-                                            activeJourney.getTitle(),
-                                            newEncodedPath);
-                                    return TrackingService.this.persistJourneyInteractor
-                                            .persist(null, visibleJourney);
-                                }
-                                else {
-                                    return Completable.complete();
-                                }
-                            }).subscribe();
-                    }
+                    handleLocationUpdates(locations);
                 }
             });
+        }
+    }
+
+    private class LegacyLocationListener implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.e("LegacyLocationListener", "onLocationChanged");
+            Schedulers.computation().scheduleDirect(() -> {
+                List<Location> locations = Collections.singletonList(location);
+                handleLocationUpdates(locations);
+            });
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.e("LegacyLocationListener", "onStatusChanged");
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            Log.e("LegacyLocationListener", "onProviderEnabled: " + provider);
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            Log.e("LegacyLocationListener", "onProviderDisabled: " + provider);
+        }
+    }
+
+    private void handleLocationUpdates(List<Location> locations) {
+        List<LatLng> locationsSequence = null;
+        if (!locations.isEmpty()) {
+            locationsSequence = new ArrayList<>(locations.size());
+            for (Location location : locations) {
+                locationsSequence.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+        }
+        if (locationsSequence != null) {
+            List<LatLng> finalLocationsSequence = locationsSequence;
+            TrackingService.this.getActiveJourneyInteractor
+                    .get(null)
+                    .flatMapCompletable(visibleJourneys -> {
+                        if (!visibleJourneys.isEmpty()) {
+                            VisibleJourney activeJourney = visibleJourneys.get(0);
+                            String previousEncodedPath = activeJourney.getEncodedPath();
+                            List<LatLng> simplifiedNewLocations = PolyUtil.simplify(finalLocationsSequence, SIMPLIFICATION_TOLERANCE_METERS);
+                            List<LatLng> aggregatedLocationsSequence = null;
+                            if (!TextUtils.isEmpty(previousEncodedPath)) {
+                                List<LatLng> previousLocationsSequence = PolyUtil.decode(previousEncodedPath);
+                                aggregatedLocationsSequence = new ArrayList<>(previousLocationsSequence.size() + simplifiedNewLocations.size());
+                                aggregatedLocationsSequence.addAll(previousLocationsSequence);
+                            }
+                            if (aggregatedLocationsSequence == null) {
+                                aggregatedLocationsSequence = new ArrayList<>();
+                            }
+                            aggregatedLocationsSequence.addAll(simplifiedNewLocations);
+                            String newEncodedPath = PolyUtil.encode(aggregatedLocationsSequence);
+                            VisibleJourney visibleJourney = new VisibleJourney(activeJourney.getIdentifier(),
+                                    activeJourney.isComplete(),
+                                    activeJourney.getStartedAtUTCDateTimeIso(),
+                                    activeJourney.getCompletedAtUTCDateTimeIso(),
+                                    activeJourney.getTitle(),
+                                    newEncodedPath);
+                            return TrackingService.this.persistJourneyInteractor
+                                    .persist(null, visibleJourney);
+                        }
+                        else {
+                            return Completable.complete();
+                        }
+                    }).subscribe();
         }
     }
 }
