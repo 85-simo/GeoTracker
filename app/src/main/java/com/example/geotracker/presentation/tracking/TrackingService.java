@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,11 +23,14 @@ import com.example.geotracker.domain.interactors.qualifiers.ActiveJourneys;
 import com.example.geotracker.presentation.base.BaseService;
 import com.example.geotracker.presentation.home.MainActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.maps.android.PolyUtil;
 
 import java.util.ArrayList;
@@ -102,12 +106,13 @@ public class TrackingService extends BaseService {
 
     }
 
-    @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
+        Log.e("Service", "startLocationUpdates called");
         LocationRequest locationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(TimeUnit.SECONDS.toMillis(5));
-        this.mFusedLocationProviderClient.requestLocationUpdates(locationRequest, this.mLocationCallback, null);
+        Task<Void> task = this.mFusedLocationProviderClient.requestLocationUpdates(locationRequest, this.mLocationCallback, null);
+        task.addOnFailureListener(e -> Log.e("LocationUpdatesRequest", "onFailure"));
     }
 
     private void stopLocationUpdates() {
@@ -132,6 +137,13 @@ public class TrackingService extends BaseService {
      * Class implementing the whole retrieval-decode-simplify-append-encode-store process.
      */
     private class LocationUpdateCallback extends LocationCallback {
+
+        @Override
+        public void onLocationAvailability(LocationAvailability locationAvailability) {
+            super.onLocationAvailability(locationAvailability);
+            Log.e("LocationUpdateCallback", "Location availability: " + locationAvailability.isLocationAvailable());
+        }
+
         @Override
         public void onLocationResult(LocationResult locationResult) {
             Schedulers.computation().scheduleDirect(() -> {
